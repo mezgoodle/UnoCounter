@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:unocounter/widgets/app_bar.dart';
 
 class NewGamePage extends StatelessWidget {
   const NewGamePage({super.key});
@@ -6,9 +7,7 @@ class NewGamePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('New Game Page'),
-      ),
+      appBar: CustomAppBar(title: 'New Game Page'),
       body: Center(
         child: ElevatedButton(
           onPressed: () {
