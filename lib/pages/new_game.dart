@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:unocounter/widgets/app_bar.dart';
+import 'package:unocounter/widgets/buttons.dart';
 
 class NewGamePage extends StatelessWidget {
   const NewGamePage({super.key});
@@ -9,11 +10,11 @@ class NewGamePage extends StatelessWidget {
     return Scaffold(
       appBar: CustomAppBar(title: 'New Game Page'),
       body: Center(
-        child: ElevatedButton(
+        child: CustomButton(
+          text: 'Go back!',
           onPressed: () {
             Navigator.pop(context);
           },
-          child: const Text('Go back!'),
         ),
       ),
     );
