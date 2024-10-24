@@ -9,11 +9,19 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('First Route'),
+        title: const Text('Home page'),
       ),
       body: Center(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.3,
+              child: Image(
+                image: AssetImage('images/logo.png'),
+              ),
+            ),
+            SizedBox(height: 30),
             ElevatedButton(
               child: const Text('See all games!'),
               onPressed: () {
@@ -23,6 +31,7 @@ class HomePage extends StatelessWidget {
                 );
               },
             ),
+            SizedBox(height: 15),
             ElevatedButton(
               child: const Text('Create new game!'),
               onPressed: () {
