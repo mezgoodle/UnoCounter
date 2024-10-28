@@ -7,6 +7,7 @@ class NewGamePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // TODO: Show here created people(players) as table with switch(include in game or not), and a form for new player
     return Scaffold(
       appBar: CustomAppBar(title: 'New Game Page'),
       body: Center(
