@@ -37,6 +37,63 @@ class _NewGamePageState extends State<NewGamePage> {
     });
   }
 
+  void _addPlayer(String name) {
+    setState(() {
+      data.add({'name': name, 'winnableGames': 0, 'selected': false});
+    });
+  }
+
+  void _showAddPlayerDialog() {
+    TextEditingController nameController = TextEditingController();
+    bool _isInputValid = true;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text('Add Player'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: nameController,
+                    decoration: InputDecoration(
+                      hintText: "Enter player's name",
+                      errorText: _isInputValid ? null : 'Name cannot be empty',
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  child: Text('Cancel'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+                TextButton(
+                  child: Text('Add'),
+                  onPressed: () {
+                    setState(() {
+                      _isInputValid = nameController.text.trim().isNotEmpty;
+                    });
+
+                    if (_isInputValid) {
+                      _addPlayer(nameController.text.trim());
+                      Navigator.of(context).pop();
+                    }
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -66,6 +123,13 @@ class _NewGamePageState extends State<NewGamePage> {
               );
             }).toList(),
           ),
+          Center(
+            child: CustomButton(
+              text: 'Add Player',
+              onPressed: _showAddPlayerDialog,
+            ),
+          ),
+          SizedBox(height: 20),
           Center(
             child: CustomButton(
               text: 'Go back!',
