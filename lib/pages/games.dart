@@ -15,25 +15,24 @@ class GamesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: show here as a list of games, table
     return Scaffold(
       appBar: CustomAppBar(title: 'Games Page'),
       body: Column(
         children: [
-          Table(
-              border: TableBorder.symmetric(),
-              children: games.map((row) {
-                return TableRow(
-                  children: row.map((cell) {
-                    return TableCell(
-                      child: Text(
-                        cell,
-                        style: const TextStyle(fontSize: 20),
-                      ),
-                    );
-                  }).toList(),
-                );
-              }).toList()),
+          DataTable(
+            columns: [
+              DataColumn(label: Text('Game')),
+              DataColumn(label: Text('Players')),
+            ],
+            rows: games.map((row) {
+              return DataRow(
+                cells: [
+                  DataCell(Text(row.first)),
+                  DataCell(Text(row.sublist(1).join(', '))),
+                ],
+              );
+            }).toList(),
+          ),
           Center(
             child: CustomButton(
               text: 'Go back!',

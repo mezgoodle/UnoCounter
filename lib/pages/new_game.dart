@@ -45,7 +45,7 @@ class _NewGamePageState extends State<NewGamePage> {
 
   void _showAddPlayerDialog() {
     TextEditingController nameController = TextEditingController();
-    bool _isInputValid = true;
+    bool isInputValid = true;
 
     showDialog(
       context: context,
@@ -61,7 +61,7 @@ class _NewGamePageState extends State<NewGamePage> {
                     controller: nameController,
                     decoration: InputDecoration(
                       hintText: "Enter player's name",
-                      errorText: _isInputValid ? null : 'Name cannot be empty',
+                      errorText: isInputValid ? null : 'Name cannot be empty',
                     ),
                   ),
                 ],
@@ -77,10 +77,10 @@ class _NewGamePageState extends State<NewGamePage> {
                   child: Text('Add'),
                   onPressed: () {
                     setState(() {
-                      _isInputValid = nameController.text.trim().isNotEmpty;
+                      isInputValid = nameController.text.trim().isNotEmpty;
                     });
 
-                    if (_isInputValid) {
+                    if (isInputValid) {
                       _addPlayer(nameController.text.trim());
                       Navigator.of(context).pop();
                     }
