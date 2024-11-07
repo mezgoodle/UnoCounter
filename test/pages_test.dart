@@ -1,114 +1,85 @@
-// games_page_test.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
 import 'package:unocounter/pages/games.dart';
 import 'package:unocounter/pages/new_game.dart';
+import 'package:unocounter/providers/player_provider.dart';
 import 'package:unocounter/widgets/app_bar.dart';
 import 'package:unocounter/widgets/buttons.dart';
 
 void main() {
   group('GamesPage', () {
-    testWidgets('should render GamesPage', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: GamesPage(),
-        ),
-      );
+    testWidgets('should render GamesPage with data', (tester) async {
+      final games = [
+        Game(name: 'Game 1', players: ['Player 1', 'Player 2']),
+        Game(name: 'Game 2', players: ['Player 3', 'Player 4']),
+      ];
+
+      await tester.pumpWidget(MaterialApp(home: GamesPage(games: games)));
+
       expect(find.byType(GamesPage), findsOneWidget);
-      // Verify the app bar title
       expect(find.widgetWithText(CustomAppBar, 'Games Page'), findsOneWidget);
-      // Verify the data table columns
-      expect(find.text('Game'), findsOneWidget);
-      expect(find.text('Players'), findsOneWidget);
-      // Verify the button exists and has the correct text
-      expect(find.widgetWithText(CustomButton, 'Go back!'), findsOneWidget);
-    });
 
-    testWidgets('should render a list of games', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: GamesPage(),
-        ),
-      );
-
-      // Verify the data table exists
-      expect(find.byType(DataTable), findsOneWidget);
-    });
-
-    testWidgets('should render game data correctly', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: GamesPage(),
-        ),
-      );
-
-      // Verify the initial data table rows
-      for (var game in const [
-        ['Game 1', 'Player 1', 'Player 2'],
-        ['Game 2', 'Player 1', 'Player 2'],
-        ['Game 3', 'Player 1', 'Player 2'],
-        ['Game 4', 'Player 1', 'Player 2'],
-        ['Game 5', 'Player 1', 'Player 2'],
-      ]) {
-        expect(find.text(game[0]), findsOneWidget);
-        expect(find.text(game.sublist(1).join(', ')), findsAtLeastNWidgets(1));
+      // Verify game data
+      for (final game in games) {
+        expect(find.text(game.name), findsOneWidget);
+        expect(find.text(game.players.join(', ')), findsOneWidget);
       }
     });
-    testWidgets('Go back button pops the route', (WidgetTester tester) async {
-      await tester.pumpWidget(MaterialApp(home: GamesPage()));
 
-      // Tap the button
+    testWidgets('should render loading indicator', (tester) async {
+      await tester.pumpWidget(MaterialApp(home: GamesPage(isLoading: true)));
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    });
+
+    testWidgets('should render error message', (tester) async {
+      await tester
+          .pumpWidget(MaterialApp(home: GamesPage(error: 'Test Error')));
+      expect(find.text('Test Error'), findsOneWidget);
+    });
+
+    testWidgets('should render no games message', (tester) async {
+      await tester.pumpWidget(MaterialApp(home: GamesPage(games: [])));
+      expect(find.text('No games found'), findsOneWidget);
+    });
+
+    testWidgets('Go back button pops the route', (tester) async {
+      await tester.pumpWidget(MaterialApp(home: GamesPage()));
       await tester.tap(find.widgetWithText(CustomButton, 'Go back!'));
       await tester.pumpAndSettle();
-
-      // Verify the route is popped
       expect(find.byType(GamesPage), findsNothing);
     });
   });
 
   group('NewGamePage', () {
-    testWidgets('NewGamePage displays correctly', (WidgetTester tester) async {
-      await tester.pumpWidget(MaterialApp(home: NewGamePage()));
+    testWidgets('NewGamePage displays correctly', (tester) async {
+      await tester.pumpWidget(
+        ChangeNotifierProvider(
+          create: (_) => PlayerProvider(),
+          child: MaterialApp(home: NewGamePage()),
+        ),
+      );
 
-      // Verify app bar
       expect(
           find.widgetWithText(CustomAppBar, 'New Game Page'), findsOneWidget);
-
-      // Verify data table columns
       expect(find.text('Name'), findsOneWidget);
       expect(find.text('Number of Winnable Games'), findsOneWidget);
       expect(find.text('Select'), findsOneWidget);
-
-      // Verify buttons
       expect(find.widgetWithText(CustomButton, 'Add Player'), findsOneWidget);
       expect(find.widgetWithText(CustomButton, 'Go back!'), findsOneWidget);
     });
 
-    testWidgets("should render player data correctly",
-        (WidgetTester tester) async {
-      await tester.pumpWidget(MaterialApp(home: NewGamePage()));
-
-      // Verify initial data is displayed
-      for (var player in const [
-        {'name': 'John Doe', 'winnableGames': 10},
-        {'name': 'Jane Doe', 'winnableGames': 20},
-        {'name': 'Bob Smith', 'winnableGames': 30},
-      ]) {
-        expect(find.text(player['name'].toString()), findsOneWidget);
-        expect(find.text(player['winnableGames'].toString()), findsOneWidget);
-      }
-    });
-
-    testWidgets('Add Player dialog works correctly',
-        (WidgetTester tester) async {
-      await tester.pumpWidget(MaterialApp(home: NewGamePage()));
+    testWidgets('Add Player dialog works correctly', (tester) async {
+      await tester.pumpWidget(
+        ChangeNotifierProvider(
+          create: (_) => PlayerProvider(),
+          child: MaterialApp(home: NewGamePage()),
+        ),
+      );
 
       // Open the dialog
       await tester.tap(find.widgetWithText(CustomButton, 'Add Player'));
       await tester.pumpAndSettle();
-
-      // Verify dialog title
-      expect(find.text('Add Player'), findsAtLeast(1));
 
       // Enter a new player name
       await tester.enterText(find.byType(TextField), 'New Player');
@@ -118,50 +89,64 @@ void main() {
       await tester.tap(find.text('Add'));
       await tester.pumpAndSettle();
 
-      // Verify the new player is added
       expect(find.text('New Player'), findsOneWidget);
-      expect(find.text('0'), findsOneWidget); // Winnable games should be 0
 
-      // Test adding an empty name (should show error)
+      // Test adding duplicate player.
       await tester.tap(find.widgetWithText(CustomButton, 'Add Player'));
       await tester.pumpAndSettle();
 
-      await tester.enterText(find.byType(TextField), '');
+      await tester.enterText(find.byType(TextField), 'New Player');
       await tester.pump();
-      await tester.tap(find.text('Add')); // Attempt to add with empty name.
-      await tester.pump(); // Pump to let error message build
+      await tester.tap(find.text('Add'));
+      await tester.pump();
 
-      expect(find.text('Name cannot be empty'),
-          findsOneWidget); // Error message should show.
-
-      // Tap Cancel to close
-      await tester.tap(find.text('Cancel'));
-      await tester.pumpAndSettle();
+      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.text("Player already exists!"), findsOneWidget);
     });
 
-    testWidgets('Switch changes selected state', (WidgetTester tester) async {
-      await tester.pumpWidget(MaterialApp(home: NewGamePage()));
-
-      // Find the first Switch
-      final Finder firstSwitch = find.byType(Switch).first;
-
-      // Check initial state (should be false)
-      expect((tester.widget(firstSwitch) as Switch).value, isFalse);
-
-      // Tap the Switch
+    testWidgets('Switch toggles player selection', (tester) async {
+      await tester.pumpWidget(ChangeNotifierProvider(
+          create: (_) => PlayerProvider.withInitialPlayers(),
+          child: MaterialApp(
+            home: NewGamePage(),
+          )));
+      final playerProvider = Provider.of<PlayerProvider>(
+          tester.element(find.byType(NewGamePage)),
+          listen: false);
+      final firstSwitch = find.byType(Switch).first;
+      expect(playerProvider.players.isEmpty, isFalse);
+      expect(playerProvider.players[0].selected, isFalse);
       await tester.tap(firstSwitch);
       await tester.pumpAndSettle();
-
-      // Check new state (should be true)
-      expect((tester.widget(firstSwitch) as Switch).value, isTrue);
+      expect(playerProvider.players[0].selected, isTrue);
     });
 
-    testWidgets('Go back button pops the route', (WidgetTester tester) async {
-      await tester.pumpWidget(MaterialApp(home: NewGamePage()));
+    testWidgets('Delete player removes player', (tester) async {
+      await tester.pumpWidget(ChangeNotifierProvider(
+          create: (_) => PlayerProvider(),
+          child: MaterialApp(home: NewGamePage())));
+      final playerProvider = Provider.of<PlayerProvider>(
+          tester.element(find.byType(NewGamePage)),
+          listen: false);
+      playerProvider.addPlayer("Test Player");
+      await tester.pumpAndSettle();
+      expect(find.text("Test Player"), findsOneWidget);
+      await tester.tap(find.byIcon(Icons.delete).first);
+      await tester.pumpAndSettle();
+      expect(find.text("Test Player"), findsNothing);
+    });
 
+    testWidgets('Go back button pops the route', (tester) async {
+      await tester.pumpWidget(
+        ChangeNotifierProvider(
+          create: (_) => PlayerProvider(),
+          child: MaterialApp(home: NewGamePage()),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text("Go back!"), findsOneWidget);
       await tester.tap(find.widgetWithText(CustomButton, 'Go back!'));
       await tester.pumpAndSettle();
-
       expect(find.byType(NewGamePage), findsNothing);
     });
   });

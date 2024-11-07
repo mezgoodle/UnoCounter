@@ -8,7 +8,7 @@ import 'package:unocounter/pages/home.dart';
 void main() {
   runApp(
     ChangeNotifierProvider(
-      create: (context) => PlayerProvider()..initializePlayers(),
+      create: (context) => PlayerProvider.withInitialPlayers(),
       child: const MyApp(),
     ),
   );

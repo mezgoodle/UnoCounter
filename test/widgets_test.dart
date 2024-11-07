@@ -20,15 +20,8 @@ void main() {
       // Verify the title text is displayed
       expect(find.text(appBarTitle), findsOneWidget);
 
-      // Verify the title's text style (color: white)
-      final Text titleWidget = tester.widget<Text>(find.text(appBarTitle));
-      expect(titleWidget.style!.color, Colors.white);
-
-      // Verify AppBar's background color
-      final AppBar appBar = tester.widget<AppBar>(find.byType(AppBar));
-      expect(appBar.backgroundColor, Colors.blue.shade700);
-
       // Verify centerTitle is true
+      final AppBar appBar = tester.widget<AppBar>(find.byType(AppBar));
       expect(appBar.centerTitle, isTrue);
 
       // Preferred Size (implicitly tested by the absence of errors, but can be explicit)

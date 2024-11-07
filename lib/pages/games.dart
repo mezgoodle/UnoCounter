@@ -10,17 +10,22 @@ class Game {
 }
 
 class GamesPage extends StatelessWidget {
-  const GamesPage({super.key});
+  final List<Game> games;
+  final bool isLoading;
+  final String? error;
 
-  final List<Game> games = const [
-    Game(name: 'Game 1', players: ['Player 1', 'Player 2']),
-    Game(name: 'Game 2', players: ['Player 1', 'Player 2']),
-    Game(name: 'Game 3', players: ['Player 1', 'Player 2']),
-    Game(name: 'Game 4', players: ['Player 1', 'Player 2']),
-    Game(name: 'Game 5', players: ['Player 1', 'Player 2']),
-  ];
-  final bool isLoading = false;
-  final String? error = null;
+  const GamesPage({
+    Key? key,
+    this.games = const [
+      Game(name: 'Game 1', players: ['Player 1', 'Player 2']),
+      Game(name: 'Game 2', players: ['Player 1', 'Player 2']),
+      Game(name: 'Game 3', players: ['Player 1', 'Player 2']),
+      Game(name: 'Game 4', players: ['Player 1', 'Player 2']),
+      Game(name: 'Game 5', players: ['Player 1', 'Player 2']),
+    ],
+    this.isLoading = false,
+    this.error,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

@@ -2,9 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:unocounter/models/player.dart';
 
 class PlayerProvider with ChangeNotifier {
+  PlayerProvider._();
   List<Player> _players = [];
 
   List<Player> get players => _players;
+
+  factory PlayerProvider.withInitialPlayers() {
+    final provider = PlayerProvider._();
+    provider.initializePlayers();
+    return provider;
+  }
+
+  factory PlayerProvider() {
+    return PlayerProvider._();
+  }
 
   void initializePlayers() {
     _players = [
