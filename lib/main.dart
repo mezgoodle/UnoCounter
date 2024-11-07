@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:unocounter/pages/new_game.dart';
 import 'package:unocounter/pages/games.dart';
 
-import 'pages/home.dart';
+import 'package:unocounter/pages/home.dart';
 
 void main() {
   runApp(const MyApp());

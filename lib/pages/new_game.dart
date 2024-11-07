@@ -35,6 +35,13 @@ class _NewGamePageState extends State<NewGamePage> {
   }
 
   void _addPlayer(String name) {
+    if (players
+        .any((player) => player.name.toLowerCase() == name.toLowerCase())) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Player already exists!")),
+      );
+      return;
+    }
     setState(() {
       players.add(Player(name: name, winnableGames: 0));
     });
@@ -47,8 +54,12 @@ class _NewGamePageState extends State<NewGamePage> {
   }
 
   void _showAddPlayerDialog() {
-    TextEditingController nameController = TextEditingController();
-    bool isInputValid = true;
+    final nameController = TextEditingController();
+    var isInputValid = true;
+
+    void dispose() {
+      nameController.dispose();
+    }
 
     showDialog(
       context: context,
@@ -66,6 +77,13 @@ class _NewGamePageState extends State<NewGamePage> {
                       hintText: "Enter player's name",
                       errorText: isInputValid ? null : 'Name cannot be empty',
                     ),
+                    onSubmitted: (_) {
+                      if (nameController.text.trim().isNotEmpty) {
+                        _addPlayer(nameController.text.trim());
+                        Navigator.of(context).pop();
+                        nameController.dispose();
+                      }
+                    },
                   ),
                 ],
               ),
@@ -74,6 +92,7 @@ class _NewGamePageState extends State<NewGamePage> {
                   child: Text('Cancel'),
                   onPressed: () {
                     Navigator.of(context).pop();
+                    nameController.dispose();
                   },
                 ),
                 TextButton(
@@ -86,6 +105,7 @@ class _NewGamePageState extends State<NewGamePage> {
                     if (isInputValid) {
                       _addPlayer(nameController.text.trim());
                       Navigator.of(context).pop();
+                      nameController.dispose();
                     }
                   },
                 ),
@@ -103,38 +123,48 @@ class _NewGamePageState extends State<NewGamePage> {
       appBar: CustomAppBar(title: 'New Game Page'),
       body: Column(
         children: [
-          DataTable(
-            columns: [
-              DataColumn(label: Text('Name')),
-              DataColumn(label: Text('Number of Winnable Games')),
-              DataColumn(label: Text('Select')),
-              DataColumn(label: Text('Delete')),
-            ],
-            rows: players.asMap().entries.map((entry) {
-              int index = entry.key;
-              Player row = entry.value;
-              return DataRow(
-                cells: [
-                  DataCell(Text(row.name)),
-                  DataCell(Text(row.winnableGames.toString())),
-                  DataCell(Switch(
-                    value: row.selected,
-                    onChanged: (bool value) {
-                      _onCheckboxChanged(index, value);
-                    },
-                  )),
-                  DataCell(Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () => _removePlayer(index),
-                      ),
-                    ],
-                  )),
-                ],
-              );
-            }).toList(),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              'Selected Players: ${players.where((p) => p.selected).length}',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+          ),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: DataTable(
+              columns: [
+                DataColumn(label: Text('Name')),
+                DataColumn(label: Text('Number of Winnable Games')),
+                DataColumn(label: Text('Select')),
+                DataColumn(label: Text('Delete')),
+              ],
+              rows: players.asMap().entries.map((entry) {
+                int index = entry.key;
+                Player row = entry.value;
+                return DataRow(
+                  cells: [
+                    DataCell(Text(row.name)),
+                    DataCell(Text(row.winnableGames.toString())),
+                    DataCell(Switch(
+                      value: row.selected,
+                      onChanged: (bool value) {
+                        _onCheckboxChanged(index, value);
+                      },
+                    )),
+                    DataCell(Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () => _removePlayer(index),
+                        ),
+                      ],
+                    )),
+                  ],
+                );
+              }).toList(),
+            ),
           ),
           Center(
             child: CustomButton(
