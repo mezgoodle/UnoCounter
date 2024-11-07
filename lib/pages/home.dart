@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:unocounter/pages/games.dart';
-import 'package:unocounter/pages/new_game.dart';
+import 'package:unocounter/constants/assets.dart';
 import 'package:unocounter/widgets/app_bar.dart';
 import 'package:unocounter/widgets/buttons.dart';
 
@@ -19,22 +18,19 @@ class HomePage extends StatelessWidget {
             SizedBox(
               height: MediaQuery.of(context).size.height * 0.3,
               child: Image(
-                image: AssetImage('images/logo.png'),
+                image: AssetImage(Assets.logoPath),
               ),
             ),
-            SizedBox(height: 30),
+            SizedBox(height: MediaQuery.of(context).size.height * 0.04),
             CustomButton(
               text: "See all games!",
-              onPressed: () => Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => GamesPage())),
+              onPressed: () => Navigator.pushNamed(context, '/games'),
             ),
             SizedBox(height: 15),
             CustomButton(
-                text: 'Create new game!',
-                onPressed: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => NewGamePage()));
-                }),
+              text: 'Create new game!',
+              onPressed: () => Navigator.pushNamed(context, '/new-game'),
+            ),
           ],
         ),
       ),

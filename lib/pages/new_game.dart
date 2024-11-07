@@ -2,6 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:unocounter/widgets/app_bar.dart';
 import 'package:unocounter/widgets/buttons.dart';
 
+class Player {
+  final String name;
+  final int winnableGames;
+  bool selected;
+
+  Player({
+    required this.name,
+    required this.winnableGames,
+    this.selected = false,
+  });
+}
+
 class NewGamePage extends StatefulWidget {
   const NewGamePage({super.key});
 
@@ -10,36 +22,27 @@ class NewGamePage extends StatefulWidget {
 }
 
 class _NewGamePageState extends State<NewGamePage> {
-  List<Map<String, dynamic>> data = [
-    {'name': 'John Doe', 'winnableGames': 10},
-    {'name': 'Jane Doe', 'winnableGames': 20},
-    {'name': 'Bob Smith', 'winnableGames': 30},
+  final List<Player> players = [
+    Player(name: 'John Doe', winnableGames: 10),
+    Player(name: 'Jane Doe', winnableGames: 20),
+    Player(name: 'Bob Smith', winnableGames: 30),
   ];
-
-  @override
-  void initState() {
-    super.initState();
-    _initializeSelected();
-  }
-
-  void _initializeSelected() {
-    setState(() {
-      data = data.map((row) {
-        row['selected'] = false;
-        return row;
-      }).toList();
-    });
-  }
 
   void _onCheckboxChanged(int index, bool? value) {
     setState(() {
-      data[index]['selected'] = value ?? false;
+      players[index].selected = value ?? false;
     });
   }
 
   void _addPlayer(String name) {
     setState(() {
-      data.add({'name': name, 'winnableGames': 0, 'selected': false});
+      players.add(Player(name: name, winnableGames: 0));
+    });
+  }
+
+  void _removePlayer(int index) {
+    setState(() {
+      players.removeAt(index);
     });
   }
 
@@ -105,19 +108,29 @@ class _NewGamePageState extends State<NewGamePage> {
               DataColumn(label: Text('Name')),
               DataColumn(label: Text('Number of Winnable Games')),
               DataColumn(label: Text('Select')),
+              DataColumn(label: Text('Delete')),
             ],
-            rows: data.asMap().entries.map((entry) {
+            rows: players.asMap().entries.map((entry) {
               int index = entry.key;
-              Map<String, dynamic> row = entry.value;
+              Player row = entry.value;
               return DataRow(
                 cells: [
-                  DataCell(Text(row['name'])),
-                  DataCell(Text(row['winnableGames'].toString())),
+                  DataCell(Text(row.name)),
+                  DataCell(Text(row.winnableGames.toString())),
                   DataCell(Switch(
-                    value: row['selected'],
+                    value: row.selected,
                     onChanged: (bool value) {
                       _onCheckboxChanged(index, value);
                     },
+                  )),
+                  DataCell(Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: () => _removePlayer(index),
+                      ),
+                    ],
                   )),
                 ],
               );
