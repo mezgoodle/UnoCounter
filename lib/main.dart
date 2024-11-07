@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:unocounter/pages/new_game.dart';
 import 'package:unocounter/pages/games.dart';
-
+import 'package:provider/provider.dart';
+import 'providers/player_provider.dart';
 import 'package:unocounter/pages/home.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => PlayerProvider()..initializePlayers(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 ThemeData myTheme = ThemeData(

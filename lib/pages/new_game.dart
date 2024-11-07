@@ -1,40 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:unocounter/widgets/app_bar.dart';
 import 'package:unocounter/widgets/buttons.dart';
+import 'package:unocounter/models/player.dart';
+import 'package:unocounter/providers/player_provider.dart';
 
-class Player {
-  final String name;
-  final int winnableGames;
-  bool selected;
-
-  Player({
-    required this.name,
-    required this.winnableGames,
-    this.selected = false,
-  });
-}
-
-class NewGamePage extends StatefulWidget {
+class NewGamePage extends StatelessWidget {
   const NewGamePage({super.key});
 
-  @override
-  State<NewGamePage> createState() => _NewGamePageState();
-}
-
-class _NewGamePageState extends State<NewGamePage> {
-  final List<Player> players = [
-    Player(name: 'John Doe', winnableGames: 10),
-    Player(name: 'Jane Doe', winnableGames: 20),
-    Player(name: 'Bob Smith', winnableGames: 30),
-  ];
-
-  void _onCheckboxChanged(int index, bool? value) {
-    setState(() {
-      players[index].selected = value ?? false;
-    });
-  }
-
-  void _addPlayer(String name) {
+  void _addPlayer(
+      String name, PlayerProvider playerProvider, BuildContext context) {
+    final players = playerProvider.players;
     if (players
         .any((player) => player.name.toLowerCase() == name.toLowerCase())) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -42,30 +18,19 @@ class _NewGamePageState extends State<NewGamePage> {
       );
       return;
     }
-    setState(() {
-      players.add(Player(name: name, winnableGames: 0));
-    });
+    Provider.of<PlayerProvider>(context, listen: false).addPlayer(name);
+    Navigator.of(context).pop();
   }
 
-  void _removePlayer(int index) {
-    setState(() {
-      players.removeAt(index);
-    });
-  }
-
-  void _showAddPlayerDialog() {
+  void _showAddPlayerDialog(BuildContext context) {
     final nameController = TextEditingController();
     var isInputValid = true;
 
-    void dispose() {
-      nameController.dispose();
-    }
-
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
         return StatefulBuilder(
-          builder: (context, setState) {
+          builder: (dialogContext, setState) {
             return AlertDialog(
               title: Text('Add Player'),
               content: Column(
@@ -79,9 +44,15 @@ class _NewGamePageState extends State<NewGamePage> {
                     ),
                     onSubmitted: (_) {
                       if (nameController.text.trim().isNotEmpty) {
-                        _addPlayer(nameController.text.trim());
-                        Navigator.of(context).pop();
-                        nameController.dispose();
+                        final playerName = nameController.text.trim();
+                        _addPlayer(
+                          playerName,
+                          Provider.of<PlayerProvider>(
+                            context,
+                            listen: false,
+                          ),
+                          context,
+                        );
                       }
                     },
                   ),
@@ -91,21 +62,26 @@ class _NewGamePageState extends State<NewGamePage> {
                 TextButton(
                   child: Text('Cancel'),
                   onPressed: () {
-                    Navigator.of(context).pop();
-                    nameController.dispose();
+                    Navigator.of(dialogContext).pop();
                   },
                 ),
                 TextButton(
                   child: Text('Add'),
                   onPressed: () {
+                    final playerName = nameController.text.trim();
                     setState(() {
-                      isInputValid = nameController.text.trim().isNotEmpty;
+                      isInputValid = playerName.isNotEmpty;
                     });
 
                     if (isInputValid) {
-                      _addPlayer(nameController.text.trim());
-                      Navigator.of(context).pop();
-                      nameController.dispose();
+                      _addPlayer(
+                        playerName,
+                        Provider.of<PlayerProvider>(
+                          context,
+                          listen: false,
+                        ),
+                        context,
+                      );
                     }
                   },
                 ),
@@ -121,68 +97,70 @@ class _NewGamePageState extends State<NewGamePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(title: 'New Game Page'),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              'Selected Players: ${players.where((p) => p.selected).length}',
-              style: Theme.of(context).textTheme.titleMedium,
+      body: Consumer<PlayerProvider>(builder: (context, playerProvider, child) {
+        return Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                'Selected Players: ${playerProvider.players.where((p) => p.selected).length}',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
             ),
-          ),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: DataTable(
-              columns: [
-                DataColumn(label: Text('Name')),
-                DataColumn(label: Text('Number of Winnable Games')),
-                DataColumn(label: Text('Select')),
-                DataColumn(label: Text('Delete')),
-              ],
-              rows: players.asMap().entries.map((entry) {
-                int index = entry.key;
-                Player row = entry.value;
-                return DataRow(
-                  cells: [
-                    DataCell(Text(row.name)),
-                    DataCell(Text(row.winnableGames.toString())),
-                    DataCell(Switch(
-                      value: row.selected,
-                      onChanged: (bool value) {
-                        _onCheckboxChanged(index, value);
-                      },
-                    )),
-                    DataCell(Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () => _removePlayer(index),
-                        ),
-                      ],
-                    )),
-                  ],
-                );
-              }).toList(),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+                columns: [
+                  DataColumn(label: Text('Name')),
+                  DataColumn(label: Text('Number of Winnable Games')),
+                  DataColumn(label: Text('Select')),
+                  DataColumn(label: Text('Delete')),
+                ],
+                rows: playerProvider.players.asMap().entries.map((entry) {
+                  int index = entry.key;
+                  Player row = entry.value;
+                  return DataRow(
+                    cells: [
+                      DataCell(Text(row.name)),
+                      DataCell(Text(row.winnableGames.toString())),
+                      DataCell(Switch(
+                        value: row.selected,
+                        onChanged: (bool value) {
+                          playerProvider.toggleSelection(index, value);
+                        },
+                      )),
+                      DataCell(Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () => playerProvider.removePlayer(index),
+                          ),
+                        ],
+                      )),
+                    ],
+                  );
+                }).toList(),
+              ),
             ),
-          ),
-          Center(
-            child: CustomButton(
-              text: 'Add Player',
-              onPressed: _showAddPlayerDialog,
+            Center(
+              child: CustomButton(
+                text: 'Add Player',
+                onPressed: () => _showAddPlayerDialog(context),
+              ),
             ),
-          ),
-          SizedBox(height: 20),
-          Center(
-            child: CustomButton(
-              text: 'Go back!',
-              onPressed: () {
-                Navigator.pop(context);
-              },
+            SizedBox(height: 20),
+            Center(
+              child: CustomButton(
+                text: 'Go back!',
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        );
+      }),
     );
   }
 }
