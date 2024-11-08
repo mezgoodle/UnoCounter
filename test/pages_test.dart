@@ -60,8 +60,7 @@ void main() {
         ),
       );
 
-      expect(
-          find.widgetWithText(CustomAppBar, 'New Game Page'), findsOneWidget);
+      expect(find.widgetWithText(CustomAppBar, 'New Game'), findsOneWidget);
       expect(find.text('Name'), findsOneWidget);
       expect(find.text('Number of Winnable Games'), findsOneWidget);
       expect(find.text('Select'), findsOneWidget);
@@ -119,6 +118,7 @@ void main() {
       await tester.tap(firstSwitch);
       await tester.pumpAndSettle();
       expect(playerProvider.players[0].selected, isTrue);
+      expect(find.text("Start Game"), findsOneWidget);
     });
 
     testWidgets('Delete player removes player', (tester) async {
