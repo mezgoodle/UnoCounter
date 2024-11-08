@@ -22,6 +22,21 @@ class NewGamePage extends StatelessWidget {
     Navigator.of(context).pop();
   }
 
+  void _startGame(BuildContext context) {
+    final playerProvider = Provider.of<PlayerProvider>(context, listen: false);
+    final selectedPlayers =
+        playerProvider.players.where((p) => p.selected).toList();
+
+    if (selectedPlayers.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Select at least one player!")),
+      );
+      return;
+    }
+
+    Navigator.pushNamed(context, '/game', arguments: selectedPlayers);
+  }
+
   void _showAddPlayerDialog(BuildContext context) {
     final nameController = TextEditingController();
     var isInputValid = true;
@@ -96,8 +111,10 @@ class NewGamePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(title: 'New Game Page'),
+      appBar: CustomAppBar(title: 'New Game'),
       body: Consumer<PlayerProvider>(builder: (context, playerProvider, child) {
+        final selectedPlayersCount =
+            playerProvider.players.where((p) => p.selected).length;
         return Column(
           children: [
             Padding(
@@ -143,6 +160,14 @@ class NewGamePage extends StatelessWidget {
                 }).toList(),
               ),
             ),
+            if (selectedPlayersCount > 0)
+              Center(
+                child: CustomButton(
+                  text: 'Start Game',
+                  onPressed: () => _startGame(context),
+                ),
+              ),
+            SizedBox(height: 20),
             Center(
               child: CustomButton(
                 text: 'Add Player',

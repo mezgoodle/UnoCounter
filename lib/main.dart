@@ -34,6 +34,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/new-game': (context) => const NewGamePage(),
         '/games': (context) => const GamesPage(),
+        '/game': (context) => const HomePage(),
       },
     );
   }
