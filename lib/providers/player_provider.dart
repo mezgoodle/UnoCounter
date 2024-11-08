@@ -7,6 +7,9 @@ class PlayerProvider with ChangeNotifier {
 
   List<Player> get players => _players;
 
+  List<Player> get selectedPlayers => players.where((p) => p.selected).toList();
+  int get selectedPlayersCount => selectedPlayers.length;
+
   factory PlayerProvider.withInitialPlayers() {
     final provider = PlayerProvider._();
     provider.initializePlayers();

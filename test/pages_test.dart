@@ -60,8 +60,7 @@ void main() {
         ),
       );
 
-      expect(
-          find.widgetWithText(CustomAppBar, 'New Game Page'), findsOneWidget);
+      expect(find.widgetWithText(CustomAppBar, 'New Game'), findsOneWidget);
       expect(find.text('Name'), findsOneWidget);
       expect(find.text('Number of Winnable Games'), findsOneWidget);
       expect(find.text('Select'), findsOneWidget);
@@ -119,6 +118,29 @@ void main() {
       await tester.tap(firstSwitch);
       await tester.pumpAndSettle();
       expect(playerProvider.players[0].selected, isTrue);
+      expect(find.text("Start Game"), findsOneWidget);
+    });
+
+    testWidgets('Start Game button appears only with selected players',
+        (tester) async {
+      await tester.pumpWidget(ChangeNotifierProvider(
+          create: (_) => PlayerProvider.withInitialPlayers(),
+          child: MaterialApp(
+            home: NewGamePage(),
+          )));
+
+      // Initially no players selected
+      expect(find.text("Start Game"), findsNothing);
+
+      // Select a player
+      await tester.tap(find.byType(Switch).first);
+      await tester.pumpAndSettle();
+      expect(find.text("Start Game"), findsOneWidget);
+
+      // Unselect the player
+      await tester.tap(find.byType(Switch).first);
+      await tester.pumpAndSettle();
+      expect(find.text("Start Game"), findsNothing);
     });
 
     testWidgets('Delete player removes player', (tester) async {

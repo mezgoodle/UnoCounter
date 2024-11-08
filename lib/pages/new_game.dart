@@ -22,6 +22,21 @@ class NewGamePage extends StatelessWidget {
     Navigator.of(context).pop();
   }
 
+  void _startGame(BuildContext context) {
+    final playerProvider = Provider.of<PlayerProvider>(context, listen: false);
+    final selectedPlayers =
+        playerProvider.players.where((p) => p.selected).toList();
+
+    if (selectedPlayers.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Select at least one player!")),
+      );
+      return;
+    }
+
+    Navigator.pushNamed(context, '/game', arguments: selectedPlayers);
+  }
+
   void _showAddPlayerDialog(BuildContext context) {
     final nameController = TextEditingController();
     var isInputValid = true;
@@ -96,14 +111,15 @@ class NewGamePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(title: 'New Game Page'),
+      appBar: CustomAppBar(title: 'New Game'),
       body: Consumer<PlayerProvider>(builder: (context, playerProvider, child) {
+        final selectedPlayersCount = playerProvider.selectedPlayersCount;
         return Column(
           children: [
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
-                'Selected Players: ${playerProvider.players.where((p) => p.selected).length}',
+                'Selected Players: $selectedPlayersCount',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
             ),
@@ -144,9 +160,21 @@ class NewGamePage extends StatelessWidget {
               ),
             ),
             Center(
-              child: CustomButton(
-                text: 'Add Player',
-                onPressed: () => _showAddPlayerDialog(context),
+              child: Column(
+                children: [
+                  if (selectedPlayersCount > 0)
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 20),
+                      child: CustomButton(
+                        text: 'Start Game',
+                        onPressed: () => _startGame(context),
+                      ),
+                    ),
+                  CustomButton(
+                    text: 'Add Player',
+                    onPressed: () => _showAddPlayerDialog(context),
+                  ),
+                ],
               ),
             ),
             SizedBox(height: 20),
