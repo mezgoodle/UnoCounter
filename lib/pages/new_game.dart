@@ -113,14 +113,13 @@ class NewGamePage extends StatelessWidget {
     return Scaffold(
       appBar: CustomAppBar(title: 'New Game'),
       body: Consumer<PlayerProvider>(builder: (context, playerProvider, child) {
-        final selectedPlayersCount =
-            playerProvider.players.where((p) => p.selected).length;
+        final selectedPlayersCount = playerProvider.selectedPlayersCount;
         return Column(
           children: [
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
-                'Selected Players: ${playerProvider.players.where((p) => p.selected).length}',
+                'Selected Players: $selectedPlayersCount',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
             ),
@@ -160,18 +159,22 @@ class NewGamePage extends StatelessWidget {
                 }).toList(),
               ),
             ),
-            if (selectedPlayersCount > 0)
-              Center(
-                child: CustomButton(
-                  text: 'Start Game',
-                  onPressed: () => _startGame(context),
-                ),
-              ),
-            SizedBox(height: 20),
             Center(
-              child: CustomButton(
-                text: 'Add Player',
-                onPressed: () => _showAddPlayerDialog(context),
+              child: Column(
+                children: [
+                  if (selectedPlayersCount > 0)
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 20),
+                      child: CustomButton(
+                        text: 'Start Game',
+                        onPressed: () => _startGame(context),
+                      ),
+                    ),
+                  CustomButton(
+                    text: 'Add Player',
+                    onPressed: () => _showAddPlayerDialog(context),
+                  ),
+                ],
               ),
             ),
             SizedBox(height: 20),
