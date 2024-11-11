@@ -14,3 +14,13 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+## Commands
+
+1. To run the app, run `flutter run`.
+
+2. To run the tests, run `flutter test`.
+
+3. To add a dependency, run `flutter pub add <package_name>`.
+
+4. To make a migration in the database, run `dart run drift_dev make-migrations`.
