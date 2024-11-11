@@ -6,7 +6,7 @@ part 'database.g.dart';
 class Players extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get name => text().withLength(min: 3, max: 32).unique()();
-  IntColumn get winnableGames => integer()();
+  IntColumn get winnableGames => integer().withDefault(Constant(0))();
   DateTimeColumn get createdAt => dateTime().nullable()();
 }
 
@@ -15,7 +15,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 1;
 
   Future<List<Player>> getPlayers() => select(players).get();
   Future<Player?> getPlayer(int id) =>

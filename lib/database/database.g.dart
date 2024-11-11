@@ -31,7 +31,9 @@ class $PlayersTable extends Players with TableInfo<$PlayersTable, Player> {
   @override
   late final GeneratedColumn<int> winnableGames = GeneratedColumn<int>(
       'winnable_games', aliasedName, false,
-      type: DriftSqlType.int, requiredDuringInsert: true);
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: Constant(0));
   static const VerificationMeta _createdAtMeta =
       const VerificationMeta('createdAt');
   @override
@@ -64,8 +66,6 @@ class $PlayersTable extends Players with TableInfo<$PlayersTable, Player> {
           _winnableGamesMeta,
           winnableGames.isAcceptableOrUnknown(
               data['winnable_games']!, _winnableGamesMeta));
-    } else if (isInserting) {
-      context.missing(_winnableGamesMeta);
     }
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,
@@ -210,10 +210,9 @@ class PlayersCompanion extends UpdateCompanion<Player> {
   PlayersCompanion.insert({
     this.id = const Value.absent(),
     required String name,
-    required int winnableGames,
+    this.winnableGames = const Value.absent(),
     this.createdAt = const Value.absent(),
-  })  : name = Value(name),
-        winnableGames = Value(winnableGames);
+  }) : name = Value(name);
   static Insertable<Player> custom({
     Expression<int>? id,
     Expression<String>? name,
@@ -285,7 +284,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
 typedef $$PlayersTableCreateCompanionBuilder = PlayersCompanion Function({
   Value<int> id,
   required String name,
-  required int winnableGames,
+  Value<int> winnableGames,
   Value<DateTime?> createdAt,
 });
 typedef $$PlayersTableUpdateCompanionBuilder = PlayersCompanion Function({
@@ -399,7 +398,7 @@ class $$PlayersTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
             required String name,
-            required int winnableGames,
+            Value<int> winnableGames = const Value.absent(),
             Value<DateTime?> createdAt = const Value.absent(),
           }) =>
               PlayersCompanion.insert(

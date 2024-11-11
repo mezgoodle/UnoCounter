@@ -1,9 +1,9 @@
-class Player {
+class PlayerSerializer {
   String name;
   int winnableGames;
   bool selected;
 
-  Player({
+  PlayerSerializer({
     required this.name,
     required this.winnableGames,
     this.selected = false,

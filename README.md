@@ -23,4 +23,6 @@ samples, guidance on mobile development, and a full API reference.
 
 3. To add a dependency, run `flutter pub add <package_name>`.
 
-4. To make a migration in the database, run `dart run drift_dev make-migrations`.
+4. Build the api for database, run `dart run build_runner build`.
+
+5. To make a migration in the database, run `dart run drift_dev make-migrations`.

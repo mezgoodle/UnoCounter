@@ -134,7 +134,7 @@ class NewGamePage extends StatelessWidget {
                 ],
                 rows: playerProvider.players.asMap().entries.map((entry) {
                   int index = entry.key;
-                  Player row = entry.value;
+                  PlayerSerializer row = entry.value;
                   return DataRow(
                     cells: [
                       DataCell(Text(row.name)),

@@ -1,13 +1,17 @@
+import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
 import 'package:unocounter/models/player.dart';
+import 'package:unocounter/database/database.dart';
 
 class PlayerProvider with ChangeNotifier {
   PlayerProvider._();
-  List<Player> _players = [];
+  late AppDatabase _db;
+  List<PlayerSerializer> _players = [];
 
-  List<Player> get players => _players;
+  List<PlayerSerializer> get players => _players;
 
-  List<Player> get selectedPlayers => players.where((p) => p.selected).toList();
+  List<PlayerSerializer> get selectedPlayers =>
+      players.where((p) => p.selected).toList();
   int get selectedPlayersCount => selectedPlayers.length;
 
   factory PlayerProvider.withInitialPlayers() {
@@ -20,17 +24,13 @@ class PlayerProvider with ChangeNotifier {
     return PlayerProvider._();
   }
 
-  void initializePlayers() {
-    _players = [
-      Player(name: 'John Doe', winnableGames: 10),
-      Player(name: 'Jane Doe', winnableGames: 20),
-      Player(name: 'Bob Smith', winnableGames: 30),
-    ];
+  Future<void> initializePlayers() async {
+    _players = (await _db.getPlayers()).cast<PlayerSerializer>();
     notifyListeners();
   }
 
-  void addPlayer(String name) {
-    _players.add(Player(name: name, winnableGames: 0));
+  Future<void> addPlayer(String name) async {
+    await _db.insertPlayer(PlayersCompanion(name: Value(name)));
     notifyListeners();
   }
 
@@ -39,8 +39,18 @@ class PlayerProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void removePlayer(int index) {
-    _players.removeAt(index);
+  Future<void> removePlayer(int id) async {
+    await _db.deletePlayer(id);
+    notifyListeners();
+  }
+
+  Future<void> updatePlayerDetails(
+      int id, String name, int winnableGames) async {
+    final player = await (_db.select(_db.players)
+          ..where((tbl) => tbl.id.equals(id)))
+        .getSingle();
+    await _db.updatePlayer(
+        player.copyWith(name: name, winnableGames: winnableGames));
     notifyListeners();
   }
 }
