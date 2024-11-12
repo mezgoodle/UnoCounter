@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "149051998392",
+    "project_id": "unocounter-65b56",
+    "storage_bucket": "unocounter-65b56.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:149051998392:android:41b9f64ac609d8ed66744d",
+        "android_client_info": {
+          "package_name": "com.example.unocounter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDoByKBwL9aeiufo8IGbBV6Yi0UJ2T-EfQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
