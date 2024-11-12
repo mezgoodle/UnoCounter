@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:unocounter/models/player.dart';
 
 class PlayerProvider with ChangeNotifier {
+  PlayerProvider();
   PlayerProvider._();
   List<PlayerSerializer> _players = [];
   List<PlayerSerializer> get players => _players;
@@ -12,15 +13,11 @@ class PlayerProvider with ChangeNotifier {
 
   factory PlayerProvider.withInitialPlayers() {
     final provider = PlayerProvider._();
-    provider.initializePlayers();
+    provider._initializePlayers();
     return provider;
   }
 
-  factory PlayerProvider() {
-    return PlayerProvider._();
-  }
-
-  void initializePlayers() {
+  void _initializePlayers() {
     _players = [
       PlayerSerializer(name: 'John Doe', winnableGames: 10),
       PlayerSerializer(name: 'Jane Doe', winnableGames: 20),
