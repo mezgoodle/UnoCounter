@@ -1,34 +1,29 @@
+import 'dart:io';
+
 import 'package:drift/drift.dart';
-import 'package:drift_flutter/drift_flutter.dart';
+import 'package:drift/native.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
+import 'package:unocounter/database/tables.dart';
 
 part 'database.g.dart';
 
-class Players extends Table {
-  IntColumn get id => integer().autoIncrement()();
-  TextColumn get name => text().withLength(min: 3, max: 32).unique()();
-  IntColumn get winnableGames => integer().withDefault(Constant(0))();
-  DateTimeColumn get createdAt => dateTime().nullable()();
-}
-
-@DriftDatabase(tables: [Players])
+@DriftDatabase(
+  tables: [Players],
+)
 class AppDatabase extends _$AppDatabase {
+  static AppDatabase instance() => AppDatabase();
+
   AppDatabase() : super(_openConnection());
 
-  // @override
-  // int get schemaVersion => 1;
+  @override
+  int get schemaVersion => 1;
+}
 
-  // Future<List<Player>> getPlayers() => select(players).get();
-  // Future<Player?> getPlayer(int id) =>
-  //     (select(players)..where((p) => p.id.equals(id))).getSingleOrNull();
-  // Future<int> insertPlayer(PlayersCompanion newPlayer) =>
-  //     into(players).insert(newPlayer);
-  // Future<bool> updatePlayer(Player updatedPlayer) =>
-  //     update(players).replace(updatedPlayer);
-
-  // Future<int> deletePlayer(int id) =>
-  //     (delete(players)..where((p) => p.id.equals(id))).go();
-
-  static QueryExecutor _openConnection() {
-    return driftDatabase(name: "database.db");
-  }
+LazyDatabase _openConnection() {
+  return LazyDatabase(() async {
+    final dbFolder = await getApplicationDocumentsDirectory();
+    final file = File(p.join(dbFolder.path, 'db.sqlite'));
+    return NativeDatabase.createInBackground(file);
+  });
 }
