@@ -4,7 +4,6 @@ import 'package:unocounter/models/player.dart';
 class PlayerProvider with ChangeNotifier {
   PlayerProvider._();
   List<PlayerSerializer> _players = [];
-
   List<PlayerSerializer> get players => _players;
 
   List<PlayerSerializer> get selectedPlayers =>
