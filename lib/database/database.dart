@@ -14,19 +14,19 @@ class Players extends Table {
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
-  @override
-  int get schemaVersion => 1;
+  // @override
+  // int get schemaVersion => 1;
 
-  Future<List<Player>> getPlayers() => select(players).get();
-  Future<Player?> getPlayer(int id) =>
-      (select(players)..where((p) => p.id.equals(id))).getSingleOrNull();
-  Future<int> insertPlayer(PlayersCompanion newPlayer) =>
-      into(players).insert(newPlayer);
-  Future<bool> updatePlayer(Player updatedPlayer) =>
-      update(players).replace(updatedPlayer);
+  // Future<List<Player>> getPlayers() => select(players).get();
+  // Future<Player?> getPlayer(int id) =>
+  //     (select(players)..where((p) => p.id.equals(id))).getSingleOrNull();
+  // Future<int> insertPlayer(PlayersCompanion newPlayer) =>
+  //     into(players).insert(newPlayer);
+  // Future<bool> updatePlayer(Player updatedPlayer) =>
+  //     update(players).replace(updatedPlayer);
 
-  Future<int> deletePlayer(int id) =>
-      (delete(players)..where((p) => p.id.equals(id))).go();
+  // Future<int> deletePlayer(int id) =>
+  //     (delete(players)..where((p) => p.id.equals(id))).go();
 
   static QueryExecutor _openConnection() {
     return driftDatabase(name: "database.db");

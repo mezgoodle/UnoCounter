@@ -1,11 +1,8 @@
-import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
 import 'package:unocounter/models/player.dart';
-import 'package:unocounter/database/database.dart';
 
 class PlayerProvider with ChangeNotifier {
   PlayerProvider._();
-  late AppDatabase _db;
   List<PlayerSerializer> _players = [];
 
   List<PlayerSerializer> get players => _players;
@@ -24,13 +21,17 @@ class PlayerProvider with ChangeNotifier {
     return PlayerProvider._();
   }
 
-  Future<void> initializePlayers() async {
-    _players = (await _db.getPlayers()).cast<PlayerSerializer>();
+  void initializePlayers() {
+    _players = [
+      PlayerSerializer(name: 'John Doe', winnableGames: 10),
+      PlayerSerializer(name: 'Jane Doe', winnableGames: 20),
+      PlayerSerializer(name: 'Bob Smith', winnableGames: 30),
+    ];
     notifyListeners();
   }
 
-  Future<void> addPlayer(String name) async {
-    await _db.insertPlayer(PlayersCompanion(name: Value(name)));
+  void addPlayer(String name) {
+    _players.add(PlayerSerializer(name: name, winnableGames: 0));
     notifyListeners();
   }
 
@@ -39,18 +40,8 @@ class PlayerProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> removePlayer(int id) async {
-    await _db.deletePlayer(id);
-    notifyListeners();
-  }
-
-  Future<void> updatePlayerDetails(
-      int id, String name, int winnableGames) async {
-    final player = await (_db.select(_db.players)
-          ..where((tbl) => tbl.id.equals(id)))
-        .getSingle();
-    await _db.updatePlayer(
-        player.copyWith(name: name, winnableGames: winnableGames));
+  void removePlayer(int index) {
+    _players.removeAt(index);
     notifyListeners();
   }
 }
