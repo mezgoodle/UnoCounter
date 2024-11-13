@@ -8,11 +8,7 @@ class FirestoreClient {
 
   Future<void> addDocument(
       String collectionName, Map<String, dynamic> data) async {
-    await _firestore.collection(collectionName).add({
-      "name": data["name"].trim(),
-      "winnableGames": data["winnableGames"],
-      "date": FieldValue.serverTimestamp(),
-    });
+    await _firestore.collection(collectionName).add(data);
   }
 
   Future<void> updateDocument(String collectionName, String documentId,
@@ -24,21 +20,16 @@ class FirestoreClient {
     await _firestore.collection(collectionName).doc(documentId).delete();
   }
 
-  Future<QuerySnapshot> getDocuments(String collectionName) async {
-    return await _firestore.collection(collectionName).get();
+  Future<List<Map<String, dynamic>>> getDocuments(String collectionName) async {
+    final snapshot = await _firestore.collection(collectionName).get();
+    return snapshot.docs.map((doc) => doc.data()).toList();
   }
 
-  Future<DocumentSnapshot> getDocument(
-      String collectionName, String documentId) async {
-    return await _firestore.collection(collectionName).doc(documentId).get();
-  }
-
-  Stream<QuerySnapshot> listenToCollection(String collectionName) {
-    return _firestore.collection(collectionName).snapshots();
-  }
-
-  Stream<DocumentSnapshot> listenToDocument(
-      String collectionName, String documentId) {
-    return _firestore.collection(collectionName).doc(documentId).snapshots();
+  CollectionReference<T> collectionRef<T>(String collectionPath,
+      {FromFirestore<T>? fromFirestore, ToFirestore<T>? toFirestore}) {
+    return _firestore.collection(collectionPath).withConverter<T>(
+          fromFirestore: fromFirestore!,
+          toFirestore: toFirestore!,
+        );
   }
 }

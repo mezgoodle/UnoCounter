@@ -15,14 +15,10 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   FirestoreClient firestoreClient = FirestoreClient();
-  // Отримання документів
-  QuerySnapshot querySnapshot = await firestoreClient.getDocuments('players');
-  for (var doc in querySnapshot.docs) {
-    print(doc.data());
-  }
+
   runApp(
     ChangeNotifierProvider(
-      create: (context) => PlayerProvider.withInitialPlayers(),
+      create: (context) => PlayerProvider.withInitialPlayers(firestoreClient),
       child: const MyApp(),
     ),
   );

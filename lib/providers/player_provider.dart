@@ -1,9 +1,14 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:unocounter/database/firebase.dart';
 import 'package:unocounter/models/player.dart';
 
 class PlayerProvider with ChangeNotifier {
-  PlayerProvider();
-  PlayerProvider._();
+  final FirestoreClient _fireStoreClient;
+
+  PlayerProvider(this._fireStoreClient);
+  PlayerProvider._(this._fireStoreClient);
+
   List<PlayerSerializer> _players = [];
   List<PlayerSerializer> get players => _players;
 
@@ -11,18 +16,25 @@ class PlayerProvider with ChangeNotifier {
       players.where((p) => p.selected).toList();
   int get selectedPlayersCount => selectedPlayers.length;
 
-  factory PlayerProvider.withInitialPlayers() {
-    final provider = PlayerProvider._();
+  factory PlayerProvider.withInitialPlayers(FirestoreClient fireStoreClient) {
+    final provider = PlayerProvider._(fireStoreClient);
     provider._initializePlayers();
     return provider;
   }
 
-  void _initializePlayers() {
-    _players = [
-      PlayerSerializer(name: 'John Doe', winnableGames: 10),
-      PlayerSerializer(name: 'Jane Doe', winnableGames: 20),
-      PlayerSerializer(name: 'Bob Smith', winnableGames: 30),
-    ];
+  CollectionReference<PlayerSerializer> get playersCollection =>
+      _fireStoreClient.collectionRef<PlayerSerializer>(
+        'players',
+        fromFirestore: (snapshot, _) =>
+            PlayerSerializer.fromMap(snapshot.data()!),
+        toFirestore: (player, _) => player.toMap(),
+      );
+
+  Future<void> _initializePlayers() async {
+    _players = (await playersCollection.get())
+        .docs
+        .map((snapshot) => snapshot.data())
+        .toList();
     notifyListeners();
   }
 
