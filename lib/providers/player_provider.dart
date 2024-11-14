@@ -18,7 +18,7 @@ class PlayerProvider with ChangeNotifier {
 
   factory PlayerProvider.withInitialPlayers(FirestoreClient fireStoreClient) {
     final provider = PlayerProvider._(fireStoreClient);
-    provider._initializePlayers();
+    provider.initializePlayers();
     return provider;
   }
 
@@ -30,12 +30,15 @@ class PlayerProvider with ChangeNotifier {
         toFirestore: (player, _) => player.toMap(),
       );
 
-  Future<void> _initializePlayers() async {
-    _players = (await playersCollection.get())
-        .docs
-        .map((snapshot) => snapshot.data())
-        .toList();
-    notifyListeners();
+  Future<void> initializePlayers() async {
+    _initializePlayersStream();
+  }
+
+  void _initializePlayersStream() {
+    playersCollection.snapshots().listen((snapshot) {
+      _players = snapshot.docs.map((doc) => doc.data()).toList();
+      notifyListeners();
+    });
   }
 
   void addPlayer(String name) {
