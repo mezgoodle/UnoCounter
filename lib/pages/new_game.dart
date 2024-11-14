@@ -112,8 +112,10 @@ class NewGamePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(title: 'New Game'),
-      body: Consumer<PlayerProvider>(builder: (context, playerProvider, child) {
-        final players = playerProvider.players;
+      body: Consumer<PlayerProvider>(builder: (context, playerProvider, _) {
+        if (playerProvider.players.isEmpty) {
+          return const Center(child: CircularProgressIndicator());
+        }
         final selectedPlayersCount = playerProvider.selectedPlayersCount;
         return Column(
           children: [
@@ -133,7 +135,7 @@ class NewGamePage extends StatelessWidget {
                   DataColumn(label: Text('Select')),
                   DataColumn(label: Text('Delete')),
                 ],
-                rows: players.asMap().entries.map((entry) {
+                rows: playerProvider.players.asMap().entries.map((entry) {
                   int index = entry.key;
                   PlayerSerializer row = entry.value;
                   return DataRow(
