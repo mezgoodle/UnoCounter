@@ -27,7 +27,21 @@ class PlayerProvider with ChangeNotifier {
 
   void _initializePlayersStream() {
     _fireStoreClient.getDocumentsStream('players').listen((snapshot) {
-      _players = snapshot.map((doc) => PlayerSerializer.fromMap(doc)).toList();
+      final newPlayers = <String, PlayerSerializer>{};
+
+      for (final doc in snapshot) {
+        final player = PlayerSerializer.fromMap(doc);
+        newPlayers[player.id!] = player;
+      }
+
+      // Update selected status for existing players
+      for (final player in _players) {
+        if (newPlayers.containsKey(player.id)) {
+          newPlayers[player.id!]!.selected = player.selected;
+        }
+      }
+
+      _players = newPlayers.values.toList();
       notifyListeners();
     });
   }
