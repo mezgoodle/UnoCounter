@@ -25,11 +25,13 @@ class FirestoreClient {
     return snapshot.docs.map((doc) => doc.data()).toList();
   }
 
-  CollectionReference<T> collectionRef<T>(String collectionPath,
-      {FromFirestore<T>? fromFirestore, ToFirestore<T>? toFirestore}) {
-    return _firestore.collection(collectionPath).withConverter<T>(
-          fromFirestore: fromFirestore!,
-          toFirestore: toFirestore!,
-        );
+  Stream<List<Map<String, dynamic>>> getDocumentsStream(String collectionName) {
+    return _firestore.collection(collectionName).snapshots().map((snapshot) {
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+        data['id'] = doc.id;
+        return data;
+      }).toList();
+    });
   }
 }

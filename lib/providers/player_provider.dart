@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:unocounter/database/firebase.dart';
 import 'package:unocounter/models/player.dart';
@@ -22,28 +21,20 @@ class PlayerProvider with ChangeNotifier {
     return provider;
   }
 
-  CollectionReference<PlayerSerializer> get playersCollection =>
-      _fireStoreClient.collectionRef<PlayerSerializer>(
-        'players',
-        fromFirestore: (snapshot, _) =>
-            PlayerSerializer.fromMap(snapshot.data()!),
-        toFirestore: (player, _) => player.toMap(),
-      );
-
   Future<void> initializePlayers() async {
     _initializePlayersStream();
   }
 
   void _initializePlayersStream() {
-    playersCollection.snapshots().listen((snapshot) {
-      _players = snapshot.docs.map((doc) => doc.data()).toList();
+    _fireStoreClient.getDocumentsStream('players').listen((snapshot) {
+      _players = snapshot.map((doc) => PlayerSerializer.fromMap(doc)).toList();
       notifyListeners();
     });
   }
 
-  void addPlayer(String name) {
-    _players.add(PlayerSerializer(name: name, winnableGames: 0));
-    notifyListeners();
+  Future<void> addPlayer(String name) async {
+    final newPlayer = PlayerSerializer(name: name, winnableGames: 0);
+    await _fireStoreClient.addDocument('players', newPlayer.toMap());
   }
 
   void toggleSelection(int index, bool value) {
