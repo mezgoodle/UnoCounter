@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:unocounter/database/firebase.dart';
+import 'package:unocounter/database/firestore.dart';
 import 'package:unocounter/models/player.dart';
 
 class PlayerProvider with ChangeNotifier {

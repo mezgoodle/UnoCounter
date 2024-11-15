@@ -1,6 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:unocounter/database/firebase.dart';
+import 'package:unocounter/database/firestore.dart';
 import 'package:unocounter/firebase_options.dart';
 import 'package:unocounter/pages/new_game.dart';
 import 'package:unocounter/pages/games.dart';
