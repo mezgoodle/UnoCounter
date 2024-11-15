@@ -56,8 +56,7 @@ class PlayerProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void removePlayer(int index) {
-    _players.removeAt(index);
-    notifyListeners();
+  void removePlayer(String documentId) async {
+    await _fireStoreClient.deleteDocument('players', documentId);
   }
 }

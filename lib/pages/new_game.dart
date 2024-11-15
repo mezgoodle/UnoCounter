@@ -153,7 +153,8 @@ class NewGamePage extends StatelessWidget {
                         children: [
                           IconButton(
                             icon: const Icon(Icons.delete, color: Colors.red),
-                            onPressed: () => playerProvider.removePlayer(index),
+                            onPressed: () =>
+                                playerProvider.removePlayer(row.id!),
                           ),
                         ],
                       )),
