@@ -17,7 +17,7 @@ void main() async {
 
   runApp(
     ChangeNotifierProvider(
-      create: (context) => PlayerProvider.withInitialPlayers(firestoreClient),
+      create: (context) => PlayerProvider(firestoreClient),
       child: const MyApp(),
     ),
   );

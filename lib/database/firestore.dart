@@ -25,7 +25,7 @@ class FirestoreClient {
     return snapshot.docs.map((doc) => doc.data()).toList();
   }
 
-  Stream<List<Map<String, dynamic>>> getDocumentsStream(String collectionName) {
+  getDocumentsStream(String collectionName) {
     return _firestore.collection(collectionName).snapshots().map((snapshot) {
       return snapshot.docs.map((doc) {
         final data = doc.data();

@@ -5,8 +5,9 @@ import 'package:unocounter/models/player.dart';
 class PlayerProvider with ChangeNotifier {
   final FirestoreClient _fireStoreClient;
 
-  PlayerProvider(this._fireStoreClient);
-  PlayerProvider._(this._fireStoreClient);
+  PlayerProvider(this._fireStoreClient) {
+    _initializePlayersStream();
+  }
 
   List<PlayerSerializer> _players = [];
   List<PlayerSerializer> get players => _players;
@@ -14,16 +15,6 @@ class PlayerProvider with ChangeNotifier {
   List<PlayerSerializer> get selectedPlayers =>
       players.where((p) => p.selected).toList();
   int get selectedPlayersCount => selectedPlayers.length;
-
-  factory PlayerProvider.withInitialPlayers(FirestoreClient fireStoreClient) {
-    final provider = PlayerProvider._(fireStoreClient);
-    provider.initializePlayers();
-    return provider;
-  }
-
-  Future<void> initializePlayers() async {
-    _initializePlayersStream();
-  }
 
   void _initializePlayersStream() {
     _fireStoreClient.getDocumentsStream('players').listen((snapshot) {

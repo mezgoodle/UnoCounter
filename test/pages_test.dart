@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
+import 'package:unocounter/database/firestore.dart';
 import 'package:unocounter/pages/games.dart';
 import 'package:unocounter/pages/new_game.dart';
 import 'package:unocounter/providers/player_provider.dart';
 import 'package:unocounter/widgets/app_bar.dart';
 import 'package:unocounter/widgets/buttons.dart';
+
+class MockFirestoreClient extends Mock implements FirestoreClient {}
 
 void main() {
   group('GamesPage', () {
@@ -52,15 +56,51 @@ void main() {
   });
 
   group('NewGamePage', () {
-    testWidgets('NewGamePage displays correctly', (tester) async {
+    late MockFirestoreClient mockFirestoreClient;
+
+    setUp(() {
+      mockFirestoreClient = MockFirestoreClient();
+    });
+
+    testWidgets('NewGamePage displays correctly with empty player list',
+        (tester) async {
+      // Mock the getDocumentsStream to return an empty stream
+      when(mockFirestoreClient.getDocumentsStream('players'))
+          .thenAnswer((_) => Stream.value([]));
+
       await tester.pumpWidget(
         ChangeNotifierProvider(
-          create: (_) => PlayerProvider(),
+          create: (_) => PlayerProvider(mockFirestoreClient),
           child: MaterialApp(home: NewGamePage()),
         ),
       );
+      await tester.pump(); // Use pump() to see the CircularProgressIndicator
+
+      expect(find.byType(CircularProgressIndicator),
+          findsOneWidget); // Expect loading indicator
+    });
+
+    testWidgets('NewGamePage displays correctly with player list',
+        (tester) async {
+      final List<Map<String, dynamic>> playerMaps = [
+        {'name': 'Player 1', 'winnableGames': 0, 'id': 'id1'},
+        {'name': 'Player 2', 'winnableGames': 2, 'id': 'id2'},
+      ];
+
+      when(mockFirestoreClient.getDocumentsStream('players')).thenAnswer(
+          (_) => Stream.value(playerMaps)); // Use playerList directly here
+
+      await tester.pumpWidget(
+        ChangeNotifierProvider(
+          create: (_) => PlayerProvider(mockFirestoreClient),
+          child: MaterialApp(home: NewGamePage()),
+        ),
+      );
+      await tester.pumpAndSettle();
 
       expect(find.widgetWithText(CustomAppBar, 'New Game'), findsOneWidget);
+      expect(find.text('Player 1'), findsOneWidget);
+      expect(find.text('Player 2'), findsOneWidget);
       expect(find.text('Name'), findsOneWidget);
       expect(find.text('Number of Winnable Games'), findsOneWidget);
       expect(find.text('Select'), findsOneWidget);
@@ -71,7 +111,7 @@ void main() {
     testWidgets('Add Player dialog works correctly', (tester) async {
       await tester.pumpWidget(
         ChangeNotifierProvider(
-          create: (_) => PlayerProvider(),
+          create: (_) => PlayerProvider(mockFirestoreClient),
           child: MaterialApp(home: NewGamePage()),
         ),
       );
@@ -105,7 +145,7 @@ void main() {
 
     testWidgets('Switch toggles player selection', (tester) async {
       await tester.pumpWidget(ChangeNotifierProvider(
-          create: (_) => PlayerProvider.withInitialPlayers(),
+          create: (_) => PlayerProvider(mockFirestoreClient),
           child: MaterialApp(
             home: NewGamePage(),
           )));
@@ -124,7 +164,7 @@ void main() {
     testWidgets('Start Game button appears only with selected players',
         (tester) async {
       await tester.pumpWidget(ChangeNotifierProvider(
-          create: (_) => PlayerProvider.withInitialPlayers(),
+          create: (_) => PlayerProvider(mockFirestoreClient),
           child: MaterialApp(
             home: NewGamePage(),
           )));
@@ -145,7 +185,7 @@ void main() {
 
     testWidgets('Delete player removes player', (tester) async {
       await tester.pumpWidget(ChangeNotifierProvider(
-          create: (_) => PlayerProvider(),
+          create: (_) => PlayerProvider(mockFirestoreClient),
           child: MaterialApp(home: NewGamePage())));
       final playerProvider = Provider.of<PlayerProvider>(
           tester.element(find.byType(NewGamePage)),
@@ -161,7 +201,7 @@ void main() {
     testWidgets('Go back button pops the route', (tester) async {
       await tester.pumpWidget(
         ChangeNotifierProvider(
-          create: (_) => PlayerProvider(),
+          create: (_) => PlayerProvider(mockFirestoreClient),
           child: MaterialApp(home: NewGamePage()),
         ),
       );
