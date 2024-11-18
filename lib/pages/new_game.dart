@@ -113,8 +113,26 @@ class NewGamePage extends StatelessWidget {
     return Scaffold(
       appBar: CustomAppBar(title: 'New Game'),
       body: Consumer<PlayerProvider>(builder: (context, playerProvider, _) {
-        if (playerProvider.players.isEmpty) {
+        if (playerProvider.isLoading) {
           return const Center(child: CircularProgressIndicator());
+        }
+        if (playerProvider.players.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'No players found',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 16),
+                CustomButton(
+                  text: 'Add Player',
+                  onPressed: () => _showAddPlayerDialog(context),
+                ),
+              ],
+            ),
+          );
         }
         final selectedPlayersCount = playerProvider.selectedPlayersCount;
         return Column(
