@@ -6,17 +6,16 @@ class FirestoreClient {
   FirestoreClient({FirebaseFirestore? firestore})
       : _firestore = firestore ?? FirebaseFirestore.instance;
 
-  Future<void> addDocument(
-      String collectionName, Map<String, dynamic> data) async {
+  addDocument(String collectionName, Map<String, dynamic> data) async {
     await _firestore.collection(collectionName).add(data);
   }
 
-  Future<void> updateDocument(String collectionName, String documentId,
+  updateDocument(String collectionName, String documentId,
       Map<String, dynamic> data) async {
     await _firestore.collection(collectionName).doc(documentId).update(data);
   }
 
-  Future<void> deleteDocument(String collectionName, String documentId) async {
+  deleteDocument(String collectionName, String documentId) async {
     await _firestore.collection(collectionName).doc(documentId).delete();
   }
 

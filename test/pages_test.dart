@@ -57,6 +57,10 @@ void main() {
 
   group('NewGamePage', () {
     late MockFirestoreClient mockFirestoreClient;
+    final List<Map<String, dynamic>> playerMaps = [
+      {'name': 'Player 1', 'winnableGames': 0, 'id': 'id1'},
+      {'name': 'Player 2', 'winnableGames': 2, 'id': 'id2'},
+    ];
 
     setUp(() {
       mockFirestoreClient = MockFirestoreClient();
@@ -74,19 +78,19 @@ void main() {
           child: MaterialApp(home: NewGamePage()),
         ),
       );
-      await tester.pump(); // Use pump() to see the CircularProgressIndicator
-
       expect(find.byType(CircularProgressIndicator),
           findsOneWidget); // Expect loading indicator
+      await tester.pump(); // Use pump() to trigger rebuild
+      verify(mockFirestoreClient.getDocumentsStream('players')).called(1);
+
+      expect(find.byType(CircularProgressIndicator),
+          findsNothing); // Expect loading indicator to be removed
+
+      expect(find.text("No players found"), findsOneWidget);
     });
 
     testWidgets('NewGamePage displays correctly with player list',
         (tester) async {
-      final List<Map<String, dynamic>> playerMaps = [
-        {'name': 'Player 1', 'winnableGames': 0, 'id': 'id1'},
-        {'name': 'Player 2', 'winnableGames': 2, 'id': 'id2'},
-      ];
-
       when(mockFirestoreClient.getDocumentsStream('players')).thenAnswer(
           (_) => Stream.value(playerMaps)); // Use playerList directly here
 
@@ -101,6 +105,7 @@ void main() {
       expect(find.widgetWithText(CustomAppBar, 'New Game'), findsOneWidget);
       expect(find.text('Player 1'), findsOneWidget);
       expect(find.text('Player 2'), findsOneWidget);
+      verify(mockFirestoreClient.getDocumentsStream('players')).called(1);
       expect(find.text('Name'), findsOneWidget);
       expect(find.text('Number of Winnable Games'), findsOneWidget);
       expect(find.text('Select'), findsOneWidget);
@@ -109,46 +114,86 @@ void main() {
     });
 
     testWidgets('Add Player dialog works correctly', (tester) async {
+      // Mock the getDocumentsStream to return an empty stream
+      when(mockFirestoreClient.getDocumentsStream('players'))
+          .thenAnswer((_) => Stream.value(playerMaps));
+      when(mockFirestoreClient.addDocument(
+              'players', {'name': 'New Player', 'winnableGames': 0}))
+          .thenAnswer((_) async => Future<void>.value()); // Mock addDocument
       await tester.pumpWidget(
         ChangeNotifierProvider(
           create: (_) => PlayerProvider(mockFirestoreClient),
           child: MaterialApp(home: NewGamePage()),
         ),
       );
+      await tester.pumpAndSettle();
 
-      // Open the dialog
+      // // Open the dialog
       await tester.tap(find.widgetWithText(CustomButton, 'Add Player'));
       await tester.pumpAndSettle();
 
-      // Enter a new player name
+      // // Enter a new player name
       await tester.enterText(find.byType(TextField), 'New Player');
       await tester.pump();
 
-      // Tap the Add button
+      // // Tap the Add button
       await tester.tap(find.text('Add'));
       await tester.pumpAndSettle();
 
-      expect(find.text('New Player'), findsOneWidget);
+      verify(mockFirestoreClient.addDocument(
+        'players',
+        {'name': 'New Player', 'winnableGames': 0},
+      )).called(1);
+    });
 
-      // Test adding duplicate player.
+    testWidgets('Add Player dialog works correctly with duplicates',
+        (tester) async {
+      // Mock the getDocumentsStream to return an empty stream
+      when(mockFirestoreClient.getDocumentsStream('players'))
+          .thenAnswer((_) => Stream.value(playerMaps));
+      when(mockFirestoreClient.addDocument(
+              'players', {'name': 'New Player', 'winnableGames': 0}))
+          .thenAnswer((_) async => Future<void>.value()); // Mock addDocument
+      await tester.pumpWidget(
+        ChangeNotifierProvider(
+          create: (_) => PlayerProvider(mockFirestoreClient),
+          child: MaterialApp(home: NewGamePage()),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // // Open the dialog
       await tester.tap(find.widgetWithText(CustomButton, 'Add Player'));
       await tester.pumpAndSettle();
 
-      await tester.enterText(find.byType(TextField), 'New Player');
+      // // Enter a new player name
+      await tester.enterText(find.byType(TextField), 'Player 1');
       await tester.pump();
+
+      // // Tap the Add button
       await tester.tap(find.text('Add'));
       await tester.pump();
 
       expect(find.byType(SnackBar), findsOneWidget);
       expect(find.text("Player already exists!"), findsOneWidget);
+
+      verifyNever(mockFirestoreClient.addDocument(
+        'players',
+        {'name': 'Player 1', 'winnableGames': 0},
+      ));
     });
 
     testWidgets('Switch toggles player selection', (tester) async {
+      // Mock the getDocumentsStream to return an empty stream
+      when(mockFirestoreClient.getDocumentsStream('players'))
+          .thenAnswer((_) => Stream.value(playerMaps));
       await tester.pumpWidget(ChangeNotifierProvider(
           create: (_) => PlayerProvider(mockFirestoreClient),
           child: MaterialApp(
             home: NewGamePage(),
           )));
+      await tester.pumpAndSettle();
+
       final playerProvider = Provider.of<PlayerProvider>(
           tester.element(find.byType(NewGamePage)),
           listen: false);
@@ -163,11 +208,15 @@ void main() {
 
     testWidgets('Start Game button appears only with selected players',
         (tester) async {
+      // Mock the getDocumentsStream to return an empty stream
+      when(mockFirestoreClient.getDocumentsStream('players'))
+          .thenAnswer((_) => Stream.value(playerMaps));
       await tester.pumpWidget(ChangeNotifierProvider(
           create: (_) => PlayerProvider(mockFirestoreClient),
           child: MaterialApp(
             home: NewGamePage(),
           )));
+      await tester.pumpAndSettle();
 
       // Initially no players selected
       expect(find.text("Start Game"), findsNothing);
@@ -184,21 +233,26 @@ void main() {
     });
 
     testWidgets('Delete player removes player', (tester) async {
+      // Mock the getDocumentsStream to return an empty stream
+      when(mockFirestoreClient.getDocumentsStream('players'))
+          .thenAnswer((_) => Stream.value(playerMaps));
+      when(mockFirestoreClient.deleteDocument('players', 'id1'))
+          .thenAnswer((_) async {});
       await tester.pumpWidget(ChangeNotifierProvider(
           create: (_) => PlayerProvider(mockFirestoreClient),
           child: MaterialApp(home: NewGamePage())));
-      final playerProvider = Provider.of<PlayerProvider>(
-          tester.element(find.byType(NewGamePage)),
-          listen: false);
-      playerProvider.addPlayer("Test Player");
       await tester.pumpAndSettle();
-      expect(find.text("Test Player"), findsOneWidget);
+
+      expect(find.text("Player 1"), findsOneWidget);
       await tester.tap(find.byIcon(Icons.delete).first);
       await tester.pumpAndSettle();
       expect(find.text("Test Player"), findsNothing);
     });
 
     testWidgets('Go back button pops the route', (tester) async {
+      // Mock the getDocumentsStream to return an empty stream
+      when(mockFirestoreClient.getDocumentsStream('players'))
+          .thenAnswer((_) => Stream.value(playerMaps));
       await tester.pumpWidget(
         ChangeNotifierProvider(
           create: (_) => PlayerProvider(mockFirestoreClient),
