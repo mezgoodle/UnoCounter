@@ -15,14 +15,21 @@ For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
 
-## Commands
+### Development
 
-1. To run the app, run `flutter run`.
+- Start the app: `flutter run`
+- Install dependencies: `flutter pub add <package_name>`
 
-2. To run the tests, run `flutter test`.
+### Testing
 
-3. To add a dependency, run `flutter pub add <package_name>`.
+- Run tests: `flutter test`
 
-4. Build the api for database, run `dart run build_runner build`.
+### Firebase Setup
 
-5. To make a migration in the database, run `dart run drift_dev make-migrations`.
+- Configure Firebase: `flutterfire configure`
+- Initialize Firebase: `firebase init`
+
+### Database Operations
+
+- Generate database API (using build_runner): `dart run build_runner build`
+- Create database migration (using drift): `dart run drift_dev make-migrations`
