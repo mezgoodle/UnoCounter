@@ -45,7 +45,11 @@ class PlayerProvider with ChangeNotifier {
 
   Future<void> addPlayer(String name) async {
     final newPlayer = PlayerSerializer(name: name, winnableGames: 0);
-    await _fireStoreClient.addDocument('players', newPlayer.toMap());
+    try {
+      await _fireStoreClient.addDocument('players', newPlayer.toMap());
+    } catch (e) {
+      debugPrint('Error adding player: $e');
+    }
   }
 
   void toggleSelection(int index, bool value) {
@@ -53,7 +57,11 @@ class PlayerProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void removePlayer(String documentId) async {
-    await _fireStoreClient.deleteDocument('players', documentId);
+  Future<void> removePlayer(String documentId) async {
+    try {
+      await _fireStoreClient.deleteDocument('players', documentId);
+    } catch (e) {
+      debugPrint('Error removing player: $e');
+    }
   }
 }
