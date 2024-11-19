@@ -108,6 +108,27 @@ class NewGamePage extends StatelessWidget {
     );
   }
 
+  Future<dynamic> _showDeleteDialog(BuildContext context, PlayerSerializer row,
+      PlayerProvider playerProvider) {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+              title: const Text('Delete Player'),
+              content: Text('Are you sure you want to delete ${row.name}?'),
+              actions: [
+                TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text('Cancel')),
+                TextButton(
+                    onPressed: () {
+                      playerProvider.removePlayer(row.id!);
+                      Navigator.of(context).pop();
+                    },
+                    child: Text('Delete')),
+              ],
+            ));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -172,7 +193,7 @@ class NewGamePage extends StatelessWidget {
                           IconButton(
                             icon: const Icon(Icons.delete, color: Colors.red),
                             onPressed: () =>
-                                playerProvider.removePlayer(row.id!),
+                                _showDeleteDialog(context, row, playerProvider),
                           ),
                         ],
                       )),
