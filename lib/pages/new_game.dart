@@ -114,7 +114,18 @@ class NewGamePage extends StatelessWidget {
         context: context,
         builder: (BuildContext context) => AlertDialog(
               title: const Text('Delete Player'),
-              content: Text('Are you sure you want to delete ${row.name}?'),
+              content: Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(text: 'Are you sure you want to delete '),
+                    TextSpan(
+                      text: row.name,
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    TextSpan(text: '?'),
+                  ],
+                ),
+              ),
               actions: [
                 TextButton(
                     onPressed: () => Navigator.of(context).pop(),
