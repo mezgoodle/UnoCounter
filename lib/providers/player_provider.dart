@@ -23,7 +23,13 @@ class PlayerProvider with ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     _playerRepository.getAll().listen((players) {
-      _players = players;
+      final newPlayers = players;
+      for (final player in _players) {
+        if (newPlayers.containsKey(player.id)) {
+          newPlayers[player.id!]!.selected = player.selected;
+        }
+      }
+      _players = newPlayers.values.toList();
       _isLoading = false;
       notifyListeners();
     });

@@ -32,7 +32,7 @@ class PlayerRepository implements IRepository<PlayerSerializer> {
         newPlayers[player.id!] = player;
       }
 
-      return newPlayers.values.toList();
+      return newPlayers;
     });
   }
 }
