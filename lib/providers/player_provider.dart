@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:unocounter/database/firestore.dart';
 import 'package:unocounter/models/player.dart';
+import 'package:unocounter/repositories/player_repository.dart';
 
 class PlayerProvider with ChangeNotifier {
-  final FirestoreClient _fireStoreClient;
+  final PlayerRepository _playerRepository;
   bool _isLoading = false;
 
-  PlayerProvider(this._fireStoreClient) {
+  PlayerProvider(this._playerRepository) {
     _initializePlayersStream();
   }
 
@@ -22,22 +22,8 @@ class PlayerProvider with ChangeNotifier {
   void _initializePlayersStream() {
     _isLoading = true;
     notifyListeners();
-    _fireStoreClient.getDocumentsStream('players').listen((snapshot) {
-      final newPlayers = <String, PlayerSerializer>{};
-
-      for (final doc in snapshot) {
-        final player = PlayerSerializer.fromMap(doc);
-        newPlayers[player.id!] = player;
-      }
-
-      // Update selected status for existing players
-      for (final player in _players) {
-        if (newPlayers.containsKey(player.id)) {
-          newPlayers[player.id!]!.selected = player.selected;
-        }
-      }
-
-      _players = newPlayers.values.toList();
+    _playerRepository.getAll().listen((players) {
+      _players = players;
       _isLoading = false;
       notifyListeners();
     });
@@ -46,7 +32,7 @@ class PlayerProvider with ChangeNotifier {
   Future<void> addPlayer(String name) async {
     final newPlayer = PlayerSerializer(name: name, winnableGames: 0);
     try {
-      await _fireStoreClient.addDocument('players', newPlayer.toMap());
+      await _playerRepository.add(newPlayer);
     } catch (e) {
       debugPrint('Error adding player: $e');
     }
@@ -59,7 +45,7 @@ class PlayerProvider with ChangeNotifier {
 
   Future<void> removePlayer(String documentId) async {
     try {
-      await _fireStoreClient.deleteDocument('players', documentId);
+      await _playerRepository.delete(documentId);
     } catch (e) {
       debugPrint('Error removing player: $e');
     }

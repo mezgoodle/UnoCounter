@@ -5,6 +5,7 @@ import 'package:unocounter/firebase_options.dart';
 import 'package:unocounter/pages/new_game.dart';
 import 'package:unocounter/pages/games.dart';
 import 'package:provider/provider.dart';
+import 'package:unocounter/repositories/player_repository.dart';
 import 'providers/player_provider.dart';
 import 'package:unocounter/pages/home.dart';
 
@@ -21,8 +22,16 @@ void main() async {
   FirestoreClient firestoreClient = FirestoreClient();
 
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => PlayerProvider(firestoreClient),
+    MultiProvider(
+      providers: [
+        Provider<PlayerRepository>(
+          create: (_) => PlayerRepository(firestoreClient),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => PlayerProvider(context.read<PlayerRepository>()),
+          child: const MyApp(),
+        )
+      ],
       child: const MyApp(),
     ),
   );
