@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:unocounter/database/firestore.dart';
 import 'package:unocounter/models/player.dart';
 import 'package:unocounter/repositories/repository.dart';
@@ -29,7 +30,12 @@ class PlayerRepository implements IRepository<PlayerSerializer> {
 
       for (final doc in snapshot) {
         final player = PlayerSerializer.fromMap(doc);
-        newPlayers[player.id!] = player;
+        if (player.id != null) {
+          newPlayers[player.id!] = player;
+        } else {
+          debugPrint('Player has no id: $player');
+          continue;
+        }
       }
 
       return newPlayers;
