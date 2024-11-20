@@ -49,11 +49,24 @@ void main() {
         () => PlayerSerializer.fromMap({
           "id": '123',
           "name": 'John Doe',
-          "winnableGames": -1,
+          "winnableGames": null,
           "selected": true,
         }),
         throwsA(isA<ArgumentError>().having((e) => e.message, 'message',
             'Invalid or missing winnableGames in map')),
+      );
+    });
+
+    test('should throw error if winnableGames is negative', () {
+      expect(
+        () => PlayerSerializer.fromMap({
+          "id": '123',
+          "name": 'John Doe',
+          "winnableGames": -1,
+          "selected": true,
+        }),
+        throwsA(isA<ArgumentError>().having(
+            (e) => e.message, 'message', 'WinnableGames cannot be negative')),
       );
     });
   });

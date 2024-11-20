@@ -26,11 +26,17 @@ class PlayerSerializer {
     final name = map['name'];
     final winnableGames = map['winnableGames'];
 
-    if (name == null || name.isEmpty || name is! String) {
+    if (name == null || name is! String) {
       throw ArgumentError('Invalid or missing name in map');
     }
-    if (winnableGames == null || winnableGames is! int || winnableGames < 0) {
+    if (name.isEmpty) {
+      throw ArgumentError('Name cannot be empty');
+    }
+    if (winnableGames == null || winnableGames is! int) {
       throw ArgumentError('Invalid or missing winnableGames in map');
+    }
+    if (winnableGames < 0) {
+      throw ArgumentError('WinnableGames cannot be negative');
     }
 
     return PlayerSerializer(
