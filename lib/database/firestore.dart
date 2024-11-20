@@ -31,18 +31,48 @@ class FirestoreClient {
   }
 
   addDocument(String collectionName, Map<String, dynamic> data) async {
-    await _withRetry(() => _firestore.collection(collectionName).add(data));
+    if (collectionName.isEmpty) {
+      throw ArgumentError('Collection name is empty');
+    }
+    try {
+      await _withRetry(() => _firestore.collection(collectionName).add(data));
+    } on FirebaseException catch (e) {
+      throw FirebaseException(
+          plugin: 'cloud_firestore', code: e.code, message: e.message);
+    } catch (e) {
+      throw Exception('Failed to add document: $e');
+    }
   }
 
   updateDocument(String collectionName, String documentId,
       Map<String, dynamic> data) async {
-    await _withRetry(() =>
-        _firestore.collection(collectionName).doc(documentId).update(data));
+    if (collectionName.isEmpty) {
+      throw ArgumentError('Collection name is empty');
+    }
+    try {
+      await _withRetry(() =>
+          _firestore.collection(collectionName).doc(documentId).update(data));
+    } on FirebaseException catch (e) {
+      throw FirebaseException(
+          plugin: 'cloud_firestore', code: e.code, message: e.message);
+    } catch (e) {
+      throw Exception('Failed to update document: $e');
+    }
   }
 
   deleteDocument(String collectionName, String documentId) async {
-    await _withRetry(
-        () => _firestore.collection(collectionName).doc(documentId).delete());
+    if (collectionName.isEmpty) {
+      throw ArgumentError('Collection name is empty');
+    }
+    try {
+      await _withRetry(
+          () => _firestore.collection(collectionName).doc(documentId).delete());
+    } on FirebaseException catch (e) {
+      throw FirebaseException(
+          plugin: 'cloud_firestore', code: e.code, message: e.message);
+    } catch (e) {
+      throw Exception('Failed to delete document: $e');
+    }
   }
 
   getDocumentsStream(String collectionName) {
@@ -52,6 +82,12 @@ class FirestoreClient {
         data['id'] = doc.id;
         return data;
       }).toList();
+    }).handleError((error) {
+      throw FirebaseException(
+        plugin: 'cloud_firestore',
+        code: error.code,
+        message: error.message,
+      );
     });
   }
 }
