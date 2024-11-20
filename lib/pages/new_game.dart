@@ -148,6 +148,21 @@ class NewGamePage extends StatelessWidget {
         if (playerProvider.isLoading) {
           return const Center(child: CircularProgressIndicator());
         }
+        if (playerProvider.hasError) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                const SizedBox(height: 16),
+                Text(
+                  'Failed to load players',
+                  style: Theme.of(context).textTheme.titleMedium,
+                )
+              ],
+            ),
+          );
+        }
         if (playerProvider.players.isEmpty) {
           return Center(
             child: Column(

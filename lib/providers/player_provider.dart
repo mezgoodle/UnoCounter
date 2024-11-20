@@ -5,6 +5,7 @@ import 'package:unocounter/repositories/player_repository.dart';
 class PlayerProvider with ChangeNotifier {
   final PlayerRepository _playerRepository;
   bool _isLoading = false;
+  bool _hasError = false;
 
   PlayerProvider(this._playerRepository) {
     _initializePlayersStream();
@@ -18,6 +19,7 @@ class PlayerProvider with ChangeNotifier {
   int get selectedPlayersCount => selectedPlayers.length;
 
   bool get isLoading => _isLoading;
+  bool get hasError => _hasError;
 
   void _initializePlayersStream() {
     _isLoading = true;
@@ -30,6 +32,10 @@ class PlayerProvider with ChangeNotifier {
         }
       }
       _players = newPlayers.values.toList();
+      _isLoading = false;
+      notifyListeners();
+    }, onError: (error) {
+      _hasError = true;
       _isLoading = false;
       notifyListeners();
     });
