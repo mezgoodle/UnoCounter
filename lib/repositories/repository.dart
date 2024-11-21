@@ -1,6 +1,6 @@
 abstract class IRepository<T> {
-  Future<void> add(T item);
+  add(T item);
   Future<void> update(String id, T item);
-  Future<void> delete(String id);
+  delete(String id);
   getAll();
 }

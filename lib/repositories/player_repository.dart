@@ -10,7 +10,7 @@ class PlayerRepository implements IRepository<PlayerSerializer> {
   PlayerRepository(this._client);
 
   @override
-  Future<void> add(PlayerSerializer item) async {
+  add(PlayerSerializer item) async {
     return await _client.addDocument(collectionName, item.toMap());
   }
 
@@ -20,12 +20,11 @@ class PlayerRepository implements IRepository<PlayerSerializer> {
   }
 
   @override
-  Future<void> delete(String id) async =>
-      await _client.deleteDocument(collectionName, id);
+  delete(String id) async => await _client.deleteDocument(collectionName, id);
 
   @override
   getAll() {
-    return _client.getDocumentsStream('players').map((snapshot) {
+    return _client.getDocumentsStream(collectionName).map((snapshot) {
       final newPlayers = <String, PlayerSerializer>{};
 
       for (final doc in snapshot) {
