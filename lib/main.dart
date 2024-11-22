@@ -17,6 +17,8 @@ void main() async {
     );
   } catch (e) {
     debugPrint('Failed to initialize Firebase: $e');
+    runApp(FireBaseErrorWidget());
+    return;
   }
 
   FirestoreClient firestoreClient = FirestoreClient();
@@ -35,6 +37,24 @@ void main() async {
       child: const MyApp(),
     ),
   );
+}
+
+class FireBaseErrorWidget extends StatelessWidget {
+  const FireBaseErrorWidget({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: Text(
+              "Failed to initialize Firebase. Please check your internet connection"),
+        ),
+      ),
+    );
+  }
 }
 
 ThemeData myTheme = ThemeData(
