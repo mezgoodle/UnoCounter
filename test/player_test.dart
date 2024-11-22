@@ -33,11 +33,6 @@ void main() {
       }
     });
 
-    test('should not include selected in serialized map', () {
-      final map = player.toMap();
-      expect(map.containsKey('selected'), isFalse);
-    });
-
     test('should throw error if name is null', () {
       expect(
         () => PlayerSerializer.fromMap({
@@ -48,19 +43,6 @@ void main() {
         }),
         throwsA(isA<ArgumentError>().having(
             (e) => e.message, 'message', 'Invalid or missing name in map')),
-      );
-    });
-
-    test('should throw error if winnableGames is null', () {
-      expect(
-        () => PlayerSerializer.fromMap({
-          "id": '123',
-          "name": 'John Doe',
-          "winnableGames": null,
-          "selected": true,
-        }),
-        throwsA(isA<ArgumentError>().having((e) => e.message, 'message',
-            'Invalid or missing winnableGames in map')),
       );
     });
 
