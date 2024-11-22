@@ -31,7 +31,6 @@ void main() async {
         ),
         ChangeNotifierProvider(
           create: (context) => PlayerProvider(context.read<PlayerRepository>()),
-          child: const MyApp(),
         )
       ],
       child: const MyApp(),

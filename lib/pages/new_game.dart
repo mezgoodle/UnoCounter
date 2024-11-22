@@ -132,7 +132,15 @@ class NewGamePage extends StatelessWidget {
                     child: Text('Cancel')),
                 TextButton(
                     onPressed: () {
-                      playerProvider.removePlayer(row.id!);
+                      if (row.id != null) {
+                        playerProvider.removePlayer(row.id!);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content:
+                                  Text('Cannot delete player: Invalid ID')),
+                        );
+                      }
                       Navigator.of(context).pop();
                     },
                     child: Text('Delete')),
