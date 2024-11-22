@@ -1,37 +1,53 @@
 import 'package:flutter/material.dart';
 import 'package:unocounter/models/player.dart';
+import 'package:unocounter/repositories/player_repository.dart';
 
 class PlayerProvider with ChangeNotifier {
-  PlayerProvider._();
-  List<Player> _players = [];
+  final PlayerRepository _playerRepository;
+  bool _isLoading = false;
+  bool _hasError = false;
 
-  List<Player> get players => _players;
+  PlayerProvider(this._playerRepository) {
+    _initializePlayersStream();
+  }
 
-  List<Player> get selectedPlayers => players.where((p) => p.selected).toList();
+  List<PlayerSerializer> _players = [];
+  List<PlayerSerializer> get players => _players;
+
+  List<PlayerSerializer> get selectedPlayers =>
+      players.where((p) => p.selected).toList();
   int get selectedPlayersCount => selectedPlayers.length;
 
-  factory PlayerProvider.withInitialPlayers() {
-    final provider = PlayerProvider._();
-    provider.initializePlayers();
-    return provider;
-  }
+  bool get isLoading => _isLoading;
+  bool get hasError => _hasError;
 
-  factory PlayerProvider() {
-    return PlayerProvider._();
-  }
-
-  void initializePlayers() {
-    _players = [
-      Player(name: 'John Doe', winnableGames: 10),
-      Player(name: 'Jane Doe', winnableGames: 20),
-      Player(name: 'Bob Smith', winnableGames: 30),
-    ];
+  void _initializePlayersStream() {
+    _isLoading = true;
     notifyListeners();
+    _playerRepository.getAll().listen((players) {
+      final newPlayers = players;
+      for (final player in _players) {
+        if (newPlayers.containsKey(player.id)) {
+          newPlayers[player.id!]!.selected = player.selected;
+        }
+      }
+      _players = newPlayers.values.toList();
+      _isLoading = false;
+      notifyListeners();
+    }, onError: (error) {
+      _hasError = true;
+      _isLoading = false;
+      notifyListeners();
+    });
   }
 
-  void addPlayer(String name) {
-    _players.add(Player(name: name, winnableGames: 0));
-    notifyListeners();
+  Future<void> addPlayer(String name) async {
+    final newPlayer = PlayerSerializer(name: name, winnableGames: 0);
+    try {
+      await _playerRepository.add(newPlayer);
+    } catch (e) {
+      debugPrint('Error adding player: $e');
+    }
   }
 
   void toggleSelection(int index, bool value) {
@@ -39,8 +55,11 @@ class PlayerProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void removePlayer(int index) {
-    _players.removeAt(index);
-    notifyListeners();
+  Future<void> removePlayer(String documentId) async {
+    try {
+      await _playerRepository.delete(documentId);
+    } catch (e) {
+      debugPrint('Error removing player: $e');
+    }
   }
 }

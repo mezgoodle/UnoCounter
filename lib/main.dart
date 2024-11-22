@@ -1,17 +1,59 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:unocounter/database/firestore.dart';
+import 'package:unocounter/firebase_options.dart';
 import 'package:unocounter/pages/new_game.dart';
 import 'package:unocounter/pages/games.dart';
 import 'package:provider/provider.dart';
+import 'package:unocounter/repositories/player_repository.dart';
 import 'providers/player_provider.dart';
 import 'package:unocounter/pages/home.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    debugPrint('Failed to initialize Firebase: $e');
+    runApp(FireBaseErrorWidget());
+    return;
+  }
+
+  FirestoreClient firestoreClient = FirestoreClient();
+
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => PlayerProvider.withInitialPlayers(),
+    MultiProvider(
+      providers: [
+        Provider<PlayerRepository>(
+          create: (_) => PlayerRepository(firestoreClient),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => PlayerProvider(context.read<PlayerRepository>()),
+        )
+      ],
       child: const MyApp(),
     ),
   );
+}
+
+class FireBaseErrorWidget extends StatelessWidget {
+  const FireBaseErrorWidget({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: Text(
+              "Failed to initialize Firebase. Please check your internet connection"),
+        ),
+      ),
+    );
+  }
 }
 
 ThemeData myTheme = ThemeData(

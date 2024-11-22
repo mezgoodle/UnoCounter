@@ -108,11 +108,87 @@ class NewGamePage extends StatelessWidget {
     );
   }
 
+  Future<dynamic> _showDeleteDialog(BuildContext context, PlayerSerializer row,
+      PlayerProvider playerProvider) {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+              title: const Text('Delete Player'),
+              content: Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(text: 'Are you sure you want to delete '),
+                    TextSpan(
+                      text: row.name,
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    TextSpan(text: '?'),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text('Cancel')),
+                TextButton(
+                    onPressed: () {
+                      if (row.id != null) {
+                        playerProvider.removePlayer(row.id!);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content:
+                                  Text('Cannot delete player: Invalid ID')),
+                        );
+                      }
+                      Navigator.of(context).pop();
+                    },
+                    child: Text('Delete')),
+              ],
+            ));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(title: 'New Game'),
-      body: Consumer<PlayerProvider>(builder: (context, playerProvider, child) {
+      body: Consumer<PlayerProvider>(builder: (context, playerProvider, _) {
+        if (playerProvider.isLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (playerProvider.hasError) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                const SizedBox(height: 16),
+                Text(
+                  'Failed to load players',
+                  style: Theme.of(context).textTheme.titleMedium,
+                )
+              ],
+            ),
+          );
+        }
+        if (playerProvider.players.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'No players found',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 16),
+                CustomButton(
+                  text: 'Add Player',
+                  onPressed: () => _showAddPlayerDialog(context),
+                ),
+              ],
+            ),
+          );
+        }
         final selectedPlayersCount = playerProvider.selectedPlayersCount;
         return Column(
           children: [
@@ -134,7 +210,7 @@ class NewGamePage extends StatelessWidget {
                 ],
                 rows: playerProvider.players.asMap().entries.map((entry) {
                   int index = entry.key;
-                  Player row = entry.value;
+                  PlayerSerializer row = entry.value;
                   return DataRow(
                     cells: [
                       DataCell(Text(row.name)),
@@ -150,7 +226,8 @@ class NewGamePage extends StatelessWidget {
                         children: [
                           IconButton(
                             icon: const Icon(Icons.delete, color: Colors.red),
-                            onPressed: () => playerProvider.removePlayer(index),
+                            onPressed: () =>
+                                _showDeleteDialog(context, row, playerProvider),
                           ),
                         ],
                       )),
