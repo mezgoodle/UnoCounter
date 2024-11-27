@@ -23,9 +23,23 @@ class CurrentGamePage extends StatelessWidget {
               style: const TextStyle(fontSize: 24),
             ),
             const SizedBox(height: 20),
-            Text(
-              'Current Dealer: ${currentDealer.name}',
-              style: const TextStyle(fontSize: 24),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Current Dealer: ${currentDealer.name}',
+                  style: const TextStyle(fontSize: 24),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.red,
+                  ),
+                )
+              ],
             ),
           ],
         ),
