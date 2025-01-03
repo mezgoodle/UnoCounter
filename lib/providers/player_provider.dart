@@ -35,6 +35,7 @@ class PlayerProvider with ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }, onError: (error) {
+      print(error);
       _hasError = true;
       _isLoading = false;
       notifyListeners();
