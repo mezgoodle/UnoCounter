@@ -45,6 +45,10 @@ class _CurrentGamePageState extends State<CurrentGamePage> {
           ],
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+        child: const Icon(Icons.add),
+      ),
     );
   }
 
