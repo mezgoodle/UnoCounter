@@ -8,6 +8,7 @@ class PlayerSerializer {
   int winnableGames;
   bool selected;
   bool isDealer;
+  int score = 0;
 
   PlayerSerializer({
     this.id,
@@ -15,6 +16,7 @@ class PlayerSerializer {
     required this.winnableGames,
     this.selected = false,
     this.isDealer = false,
+    this.score = 0,
   });
 
   Map<String, dynamic> toMap() {

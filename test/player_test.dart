@@ -26,7 +26,7 @@ void main() {
 
     test('should not include id in serialized map', () {
       final map = player.toMap();
-      final excludedFields = ['id', 'selected', 'isDealer'];
+      final excludedFields = ['id', 'selected', 'isDealer', 'score'];
       for (final field in excludedFields) {
         expect(map.containsKey(field), isFalse,
             reason: '$field should not be included in serialized map');

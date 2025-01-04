@@ -2,48 +2,82 @@ import 'package:flutter/material.dart';
 import 'package:unocounter/models/player.dart';
 import 'package:unocounter/widgets/app_bar.dart';
 
-class CurrentGamePage extends StatelessWidget {
+class CurrentGamePage extends StatefulWidget {
   const CurrentGamePage({Key? key}) : super(key: key);
 
   @override
+  _CurrentGamePageState createState() => _CurrentGamePageState();
+}
+
+class _CurrentGamePageState extends State<CurrentGamePage> {
+  final String _currentDealerName = "Bob";
+  final int _movesMade = 10;
+
+  // Тимчасові тестові дані
+  final List<PlayerSerializer> _players = [
+    PlayerSerializer(name: "Alice", winnableGames: 10, score: 15),
+    PlayerSerializer(name: "Bob", winnableGames: 5, score: 25),
+    PlayerSerializer(name: "Charlie", winnableGames: 12, score: 10),
+    PlayerSerializer(name: "David", winnableGames: 8, score: 30),
+  ];
+
+  @override
   Widget build(BuildContext context) {
-    final currentDealer = PlayerSerializer.fromMap({
-      "name": "John Doe",
-      "winnableGames": 10,
-    });
-    const movesMade = 10;
     return Scaffold(
       appBar: CustomAppBar(title: 'Current Game'),
-      body: Center(
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             Text(
-              'Moves made: $movesMade',
+              'Moves made: $_movesMade',
               style: const TextStyle(fontSize: 24),
             ),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Current Dealer: ${currentDealer.name}',
-                  style: const TextStyle(fontSize: 24),
+            Expanded(
+              child: Center(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: _buildPlayerTable(),
                 ),
-                const SizedBox(width: 8),
-                Container(
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.red,
-                  ),
-                )
-              ],
+              ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildPlayerTable() {
+    return DataTable(
+      columns: const [
+        DataColumn(label: Text('Player')),
+        DataColumn(label: Text('Score')),
+        DataColumn(label: Text('Dealer')),
+      ],
+      rows: _players.map((player) {
+        return DataRow(cells: [
+          DataCell(Text(player.name)),
+          DataCell(Text(player.score.toString())),
+          DataCell(
+            _buildDealerIcon(player.name),
+          ),
+        ]);
+      }).toList(),
+    );
+  }
+
+  Widget _buildDealerIcon(String playerName) {
+    if (playerName == _currentDealerName) {
+      return Container(
+        width: 8,
+        height: 8,
+        decoration: const BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.red,
+        ),
+      );
+    }
+    return const SizedBox.shrink();
   }
 }
