@@ -53,6 +53,7 @@ class _CurrentGamePageState extends State<CurrentGamePage> {
   }
 
   Widget _buildPlayerTable() {
+    final leader = _findLeader();
     return DataTable(
       columns: const [
         DataColumn(label: Text('Player')),
@@ -61,7 +62,13 @@ class _CurrentGamePageState extends State<CurrentGamePage> {
       ],
       rows: _players.map((player) {
         return DataRow(cells: [
-          DataCell(Text(player.name)),
+          DataCell(Row(
+            children: [
+              Text(player.name),
+              const SizedBox(width: 4),
+              _buildLeaderIcon(player, leader),
+            ],
+          )),
           DataCell(Text(player.score.toString())),
           DataCell(
             _buildDealerIcon(player.name),
@@ -83,5 +90,23 @@ class _CurrentGamePageState extends State<CurrentGamePage> {
       );
     }
     return const SizedBox.shrink();
+  }
+
+  Widget _buildLeaderIcon(PlayerSerializer player, PlayerSerializer? leader) {
+    if (leader != null && player.name == leader.name) {
+      return const Icon(Icons.emoji_events, color: Colors.amber);
+    }
+    return const SizedBox.shrink();
+  }
+
+  PlayerSerializer? _findLeader() {
+    if (_players.isEmpty) return null;
+    PlayerSerializer leader = _players.first;
+    for (final player in _players) {
+      if (player.score > leader.score) {
+        leader = player;
+      }
+    }
+    return leader;
   }
 }
