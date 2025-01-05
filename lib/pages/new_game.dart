@@ -8,6 +8,8 @@ import 'package:unocounter/providers/player_provider.dart';
 class NewGamePage extends StatelessWidget {
   const NewGamePage({super.key});
 
+  final int maximumPlayersCount = 6;
+
   void _addPlayer(
       String name, PlayerProvider playerProvider, BuildContext context) {
     final players = playerProvider.players;
@@ -218,7 +220,17 @@ class NewGamePage extends StatelessWidget {
                       DataCell(Switch(
                         value: row.selected,
                         onChanged: (bool value) {
-                          playerProvider.toggleSelection(index, value);
+                          if (playerProvider.selectedPlayersCount <
+                                  maximumPlayersCount ||
+                              !value) {
+                            playerProvider.toggleSelection(index, value);
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content: Text(
+                                      "You can select only $maximumPlayersCount players!")),
+                            );
+                          }
                         },
                       )),
                       DataCell(Row(
