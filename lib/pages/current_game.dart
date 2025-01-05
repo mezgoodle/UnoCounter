@@ -17,8 +17,16 @@ class _CurrentGamePageState extends State<CurrentGamePage> {
   final List<PlayerSerializer> _players = [
     PlayerSerializer(name: "Alice", winnableGames: 10, score: 15),
     PlayerSerializer(name: "Bob", winnableGames: 5, score: 25),
-    PlayerSerializer(name: "Charlie", winnableGames: 12, score: 10),
+    PlayerSerializer(name: "Charlie", winnableGames: 12, score: 30),
     PlayerSerializer(name: "David", winnableGames: 8, score: 30),
+    PlayerSerializer(name: "Eve", winnableGames: 15, score: 18),
+    PlayerSerializer(name: "Frank", winnableGames: 10, score: 22),
+    PlayerSerializer(name: "Grace", winnableGames: 10, score: 15),
+    PlayerSerializer(name: "Henry", winnableGames: 5, score: 25),
+    PlayerSerializer(name: "Ivy", winnableGames: 12, score: 30),
+    PlayerSerializer(name: "Jack", winnableGames: 8, score: 30),
+    PlayerSerializer(name: "Kate", winnableGames: 15, score: 18),
+    PlayerSerializer(name: "Liam", winnableGames: 10, score: 22),
   ];
 
   @override
@@ -26,7 +34,7 @@ class _CurrentGamePageState extends State<CurrentGamePage> {
     return Scaffold(
       appBar: CustomAppBar(title: 'Current Game'),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
@@ -38,7 +46,12 @@ class _CurrentGamePageState extends State<CurrentGamePage> {
               child: Center(
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
-                  child: _buildPlayerTable(),
+                  child: SizedBox(
+                    width: MediaQuery.of(context).size.width - 32,
+                    child: SingleChildScrollView(
+                        scrollDirection: Axis.vertical,
+                        child: _buildPlayerTable()),
+                  ),
                 ),
               ),
             ),
