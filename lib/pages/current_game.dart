@@ -6,10 +6,10 @@ class CurrentGamePage extends StatefulWidget {
   const CurrentGamePage({Key? key}) : super(key: key);
 
   @override
-  _CurrentGamePageState createState() => _CurrentGamePageState();
+  CurrentGamePageState createState() => CurrentGamePageState();
 }
 
-class _CurrentGamePageState extends State<CurrentGamePage> {
+class CurrentGamePageState extends State<CurrentGamePage> {
   final String _currentDealerName = "Bob";
   final int _movesMade = 10;
 
