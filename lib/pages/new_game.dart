@@ -4,11 +4,12 @@ import 'package:unocounter/widgets/app_bar.dart';
 import 'package:unocounter/widgets/buttons.dart';
 import 'package:unocounter/models/player.dart';
 import 'package:unocounter/providers/player_provider.dart';
+import 'package:unocounter/constants/values.dart';
 
 class NewGamePage extends StatelessWidget {
   const NewGamePage({super.key});
 
-  final int maximumPlayersCount = 6;
+  final int maximumPlayersCount = Values.maximumSelectedPlayers;
 
   void _addPlayer(
       String name, PlayerProvider playerProvider, BuildContext context) {
