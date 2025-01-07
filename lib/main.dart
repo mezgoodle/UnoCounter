@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:unocounter/database/firestore.dart';
 import 'package:unocounter/firebase_options.dart';
+import 'package:unocounter/pages/current_game.dart';
 import 'package:unocounter/pages/new_game.dart';
 import 'package:unocounter/pages/games.dart';
 import 'package:provider/provider.dart';
@@ -76,7 +77,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/new-game': (context) => const NewGamePage(),
         '/games': (context) => const GamesPage(),
-        '/game': (context) => const HomePage(),
+        '/game': (context) => const CurrentGamePage(),
       },
     );
   }

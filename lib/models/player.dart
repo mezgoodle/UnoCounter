@@ -7,12 +7,16 @@ class PlayerSerializer {
   String name;
   int winnableGames;
   bool selected;
+  bool isDealer;
+  int score = 0;
 
   PlayerSerializer({
     this.id,
     required this.name,
     required this.winnableGames,
     this.selected = false,
+    this.isDealer = false,
+    this.score = 0,
   });
 
   Map<String, dynamic> toMap() {
