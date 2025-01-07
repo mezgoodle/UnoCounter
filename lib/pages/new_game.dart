@@ -9,7 +9,7 @@ import 'package:unocounter/constants/values.dart';
 class NewGamePage extends StatelessWidget {
   const NewGamePage({super.key});
 
-  final int maximumPlayersCount = Values.maximumSelectedPlayers;
+  final int maximumPlayersCount = GameConstants.maximumSelectedPlayers;
 
   void _addPlayer(
       String name, PlayerProvider playerProvider, BuildContext context) {
@@ -221,15 +221,18 @@ class NewGamePage extends StatelessWidget {
                       DataCell(Switch(
                         value: row.selected,
                         onChanged: (bool value) {
-                          if (playerProvider.selectedPlayersCount <
-                                  maximumPlayersCount ||
-                              !value) {
+                          if (!value ||
+                              playerProvider.selectedPlayersCount <
+                                  maximumPlayersCount) {
                             playerProvider.toggleSelection(index, value);
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                  content: Text(
-                                      "You can select only $maximumPlayersCount players!")),
+                                content: Text(
+                                    "Maximum limit of $maximumPlayersCount players reached. "
+                                    "Deselect a player before adding another one."),
+                                duration: const Duration(seconds: 4),
+                              ),
                             );
                           }
                         },

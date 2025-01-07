@@ -66,7 +66,7 @@ class CurrentGamePageState extends State<CurrentGamePage> {
   }
 
   Widget _buildPlayerTable() {
-    final leader = _findLeader();
+    final leaders = _findLeaders();
     return DataTable(
       columns: const [
         DataColumn(label: Text('Player')),
@@ -79,7 +79,7 @@ class CurrentGamePageState extends State<CurrentGamePage> {
             children: [
               Text(player.name),
               const SizedBox(width: 4),
-              _buildLeaderIcon(player, leader),
+              _buildLeaderIcon(player, leaders),
             ],
           )),
           DataCell(Text(player.score.toString())),
@@ -105,21 +105,20 @@ class CurrentGamePageState extends State<CurrentGamePage> {
     return const SizedBox.shrink();
   }
 
-  Widget _buildLeaderIcon(PlayerSerializer player, PlayerSerializer? leader) {
-    if (leader != null && player.name == leader.name) {
+  Widget _buildLeaderIcon(
+      PlayerSerializer player, List<PlayerSerializer>? leaders) {
+    if (leaders != null && leaders.any((l) => l.name == player.name)) {
       return const Icon(Icons.emoji_events, color: Colors.amber);
     }
     return const SizedBox.shrink();
   }
 
-  PlayerSerializer? _findLeader() {
+  List<PlayerSerializer>? _findLeaders() {
     if (_players.isEmpty) return null;
-    PlayerSerializer leader = _players.first;
-    for (final player in _players) {
-      if (player.score > leader.score) {
-        leader = player;
-      }
-    }
-    return leader;
+
+    final maxScore = _players
+        .map((p) => p.score)
+        .reduce((max, score) => score > max ? score : max);
+    return _players.where((p) => p.score == maxScore).toList();
   }
 }
