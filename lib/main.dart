@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:unocounter/repositories/player_repository.dart';
 import 'providers/player_provider.dart';
 import 'package:unocounter/pages/home.dart';
+import 'package:unocounter/utils/logger.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,8 +17,18 @@ void main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    logger.i('Firebase successfully initialized', error: {
+      'platform': DefaultFirebaseOptions.currentPlatform.toString(),
+      'timestamp': DateTime.now().toIso8601String(),
+      'environment': const String.fromEnvironment('FLUTTER_ENV',
+          defaultValue: 'development')
+    });
   } catch (e) {
-    debugPrint('Failed to initialize Firebase: $e');
+    logger.e(
+      'Failed to initialize Firebase',
+      error: e,
+      stackTrace: StackTrace.current,
+    );
     runApp(FireBaseErrorWidget());
     return;
   }

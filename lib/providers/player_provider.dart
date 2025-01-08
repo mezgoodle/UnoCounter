@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:unocounter/models/player.dart';
 import 'package:unocounter/repositories/player_repository.dart';
+import 'package:unocounter/utils/logger.dart';
 
 class PlayerProvider with ChangeNotifier {
   final PlayerRepository _playerRepository;
@@ -35,7 +36,7 @@ class PlayerProvider with ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }, onError: (error) {
-      debugPrint('Error in players stream: $error');
+      logger.e('Error in players stream', error: error, time: DateTime.now());
       _hasError = true;
       _isLoading = false;
       notifyListeners();
@@ -47,7 +48,7 @@ class PlayerProvider with ChangeNotifier {
     try {
       await _playerRepository.add(newPlayer);
     } catch (e) {
-      debugPrint('Error adding player: $e');
+      logger.e('Error adding player', error: e, time: DateTime.now());
     }
   }
 
@@ -60,7 +61,7 @@ class PlayerProvider with ChangeNotifier {
     try {
       await _playerRepository.delete(documentId);
     } catch (e) {
-      debugPrint('Error removing player: $e');
+      logger.e('Error removing player', error: e, time: DateTime.now());
     }
   }
 }
