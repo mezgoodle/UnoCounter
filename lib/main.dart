@@ -17,9 +17,14 @@ void main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    logger.i('Firebase initialized');
+    logger.i('Firebase successfully initialized',
+        error: {'platform': DefaultFirebaseOptions.currentPlatform.toString()});
   } catch (e) {
-    logger.e('Failed to initialize Firebase', error: e);
+    logger.e(
+      'Failed to initialize Firebase',
+      error: e,
+      stackTrace: StackTrace.current,
+    );
     runApp(FireBaseErrorWidget());
     return;
   }

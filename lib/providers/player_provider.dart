@@ -48,7 +48,7 @@ class PlayerProvider with ChangeNotifier {
     try {
       await _playerRepository.add(newPlayer);
     } catch (e) {
-      logger.e('Error adding player', error: e);
+      logger.e('Error adding player', error: e, time: DateTime.now());
     }
   }
 
@@ -61,7 +61,7 @@ class PlayerProvider with ChangeNotifier {
     try {
       await _playerRepository.delete(documentId);
     } catch (e) {
-      logger.e('Error removing player', error: e);
+      logger.e('Error removing player', error: e, time: DateTime.now());
     }
   }
 }

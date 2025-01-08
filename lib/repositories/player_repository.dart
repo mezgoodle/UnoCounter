@@ -11,25 +11,25 @@ class PlayerRepository implements IRepository<PlayerSerializer> {
 
   @override
   add(PlayerSerializer item) {
-    logger.i("Add new player");
+    logger.i("Adding new player", error: {"player": item.toString()});
     return _client.addDocument(collectionName, item.toMap());
   }
 
   @override
   update(String id, PlayerSerializer item) {
-    logger.i("Update player");
+    logger.i("Updating player", error: {"id": id, "player": item.toString()});
     return _client.updateDocument(collectionName, id, item.toMap());
   }
 
   @override
   delete(String id) {
-    logger.i("Delete player");
+    logger.i("Deleting player", error: {"id": id});
     return _client.deleteDocument(collectionName, id);
   }
 
   @override
   getAll() {
-    logger.i("Get all players");
+    logger.i("Retrieving all players");
     return _client.getDocumentsStream(collectionName).map((snapshot) {
       final newPlayers = <String, PlayerSerializer>{};
 
@@ -38,7 +38,10 @@ class PlayerRepository implements IRepository<PlayerSerializer> {
         if (player.id != null) {
           newPlayers[player.id!] = player;
         } else {
-          logger.e('Player has no id', error: "player = $player");
+          logger.e(
+            'Failed to process player: missing ID',
+            error: {'player_data': player.toString()},
+          );
           continue;
         }
       }
