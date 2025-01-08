@@ -36,7 +36,7 @@ class PlayerProvider with ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }, onError: (error) {
-      logger.e('Error in players stream', error: error);
+      logger.e('Error in players stream', error: error, time: DateTime.now());
       _hasError = true;
       _isLoading = false;
       notifyListeners();

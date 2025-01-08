@@ -17,8 +17,12 @@ void main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    logger.i('Firebase successfully initialized',
-        error: {'platform': DefaultFirebaseOptions.currentPlatform.toString()});
+    logger.i('Firebase successfully initialized', error: {
+      'platform': DefaultFirebaseOptions.currentPlatform.toString(),
+      'timestamp': DateTime.now().toIso8601String(),
+      'environment': const String.fromEnvironment('FLUTTER_ENV',
+          defaultValue: 'development')
+    });
   } catch (e) {
     logger.e(
       'Failed to initialize Firebase',
