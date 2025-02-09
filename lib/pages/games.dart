@@ -40,7 +40,7 @@ class GamesPage extends StatelessWidget {
                 const Icon(Icons.error_outline, size: 48, color: Colors.red),
                 const SizedBox(height: 16),
                 Text(
-                  'Failed to load players',
+                  'Failed to load games',
                   style: Theme.of(context).textTheme.titleMedium,
                 )
               ],

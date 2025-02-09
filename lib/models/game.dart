@@ -2,7 +2,8 @@ import 'package:unocounter/models/player.dart';
 
 class GameSerializer {
   String? id;
-  List<PlayerSerializer>? players = <PlayerSerializer>[];
+  List<dynamic>? players =
+      <PlayerSerializer>[]; // TODO: ask gemini for type, see the result in the rendered display
 
   GameSerializer({
     this.id,

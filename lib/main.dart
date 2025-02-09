@@ -6,7 +6,9 @@ import 'package:unocounter/pages/current_game.dart';
 import 'package:unocounter/pages/new_game.dart';
 import 'package:unocounter/pages/games.dart';
 import 'package:provider/provider.dart';
+import 'package:unocounter/providers/game_provider.dart';
 import 'package:unocounter/repositories/player_repository.dart';
+import 'package:unocounter/repositories/game_repository.dart';
 import 'providers/player_provider.dart';
 import 'package:unocounter/pages/home.dart';
 import 'package:unocounter/utils/logger.dart';
@@ -41,9 +43,15 @@ void main() async {
         Provider<PlayerRepository>(
           create: (_) => PlayerRepository(firestoreClient),
         ),
+        Provider<GameRepository>(
+          create: (_) => GameRepository(firestoreClient),
+        ),
         ChangeNotifierProvider(
           create: (context) => PlayerProvider(context.read<PlayerRepository>()),
-        )
+        ),
+        ChangeNotifierProvider(
+          create: (context) => GameProvider(context.read<GameRepository>()),
+        ),
       ],
       child: const MyApp(),
     ),
