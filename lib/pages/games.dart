@@ -1,7 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:unocounter/models/game.dart';
+import 'package:unocounter/models/player.dart';
 import 'package:unocounter/providers/game_provider.dart';
+import 'package:unocounter/providers/player_provider.dart';
+import 'package:unocounter/utils/logger.dart';
 import 'package:unocounter/widgets/app_bar.dart';
 import 'package:unocounter/widgets/buttons.dart';
 
@@ -81,7 +85,21 @@ class GamesPage extends StatelessWidget {
                     return DataRow(
                       cells: [
                         DataCell(Text(row.id.toString())),
-                        DataCell(Text(row.players!.join(', '))),
+                        DataCell(FutureBuilder<List<String>>(
+                          future: _getPlayerNames(context, row.players!),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const CircularProgressIndicator();
+                            } else if (snapshot.hasError) {
+                              return Text('Error: ${snapshot.error}');
+                            } else if (snapshot.hasData) {
+                              return Text(snapshot.data!.join(', '));
+                            } else {
+                              return const Text('No players');
+                            }
+                          },
+                        )),
                       ],
                     );
                   }).toList(),
@@ -100,5 +118,26 @@ class GamesPage extends StatelessWidget {
         );
       }),
     );
+  }
+
+  Future<List<String>> _getPlayerNames(
+      BuildContext context, List<dynamic> playerRefs) async {
+    final playerProvider = Provider.of<PlayerProvider>(context, listen: false);
+    List<String> playerNames = [];
+
+    for (var playerRef in playerRefs) {
+      final playerId = playerRef.id; // Отримуємо ID з DocumentReference
+
+      // Search for the player in the PlayerProvider's list.
+      final player = playerProvider.players.firstWhere(
+        (p) => p.id == playerId,
+        orElse: () => PlayerSerializer(
+            name: 'Unknown', winnableGames: 0), // Provide a default player.
+      );
+
+      playerNames.add(player.name); // Add the player name to the list.
+    }
+
+    return playerNames;
   }
 }
