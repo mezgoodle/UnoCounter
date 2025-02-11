@@ -1,11 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:unocounter/models/game.dart';
 import 'package:unocounter/models/player.dart';
 import 'package:unocounter/providers/game_provider.dart';
 import 'package:unocounter/providers/player_provider.dart';
-import 'package:unocounter/utils/logger.dart';
 import 'package:unocounter/widgets/app_bar.dart';
 import 'package:unocounter/widgets/buttons.dart';
 
@@ -134,7 +132,6 @@ class GamesPage extends StatelessWidget {
         orElse: () => PlayerSerializer(
             name: 'Unknown', winnableGames: 0), // Provide a default player.
       );
-
       playerNames.add(player.name); // Add the player name to the list.
     }
 
