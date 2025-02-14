@@ -3,13 +3,25 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class GameSerializer {
   String? id;
   List<DocumentReference>? players = <DocumentReference>[];
+  String? dealerId;
+  Map<String, int>? scores;
+  String? currentTurnPlayerId;
+
   GameSerializer({
     this.id,
     this.players,
+    this.dealerId,
+    this.scores,
+    this.currentTurnPlayerId,
   });
 
   Map<String, dynamic> toMap() {
-    return {'players': players};
+    return {
+      'players': players,
+      'dealerId': dealerId,
+      'scores': scores,
+      'currentTurnPlayerId': currentTurnPlayerId
+    };
   }
 
   factory GameSerializer.fromMap(Map<String, dynamic> map) {
@@ -21,6 +33,12 @@ class GameSerializer {
       }).toList();
     }
 
-    return GameSerializer(id: map['id'] as String?, players: players);
+    return GameSerializer(
+      id: map['id'] as String?,
+      players: players,
+      dealerId: map['dealerId'] as String?,
+      scores: map['scores'] as Map<String, int>?,
+      currentTurnPlayerId: map['currentTurnPlayerId'] as String?,
+    );
   }
 }

@@ -96,7 +96,10 @@ class MyApp extends StatelessWidget {
       routes: {
         '/new-game': (context) => const NewGamePage(),
         '/games': (context) => const GamesPage(),
-        '/game': (context) => const CurrentGamePage(),
+        '/game': (context) {
+          final args = ModalRoute.of(context)!.settings.arguments as String?;
+          return CurrentGamePage(gameId: args!);
+        },
       },
     );
   }

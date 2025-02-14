@@ -36,4 +36,39 @@ class GameProvider with ChangeNotifier {
   Future<void> addGame(String name) async {}
 
   Future<void> removeGame(String documentId) async {}
+
+  Future<void> setDealer(String gameId, String playerId) async {
+    try {
+      final game = _games.firstWhere((g) => g.id == gameId);
+      game.dealerId = playerId;
+      await _gameRepository.update(gameId, game);
+      notifyListeners();
+    } catch (e) {
+      logger.e('Error setting dealer', error: e, time: DateTime.now());
+    }
+  }
+
+  Future<void> updateScore(String gameId, String playerId, int score) async {
+    try {
+      final game = _games.firstWhere((g) => g.id == gameId);
+      game.scores ??= {}; // Ініціалізація мапи, якщо її ще немає
+      game.scores![playerId] = score;
+      await _gameRepository.update(gameId, game);
+      notifyListeners();
+    } catch (e) {
+      logger.e('Error updating score', error: e, time: DateTime.now());
+    }
+  }
+
+  Future<void> setCurrentTurnPlayer(String gameId, String playerId) async {
+    try {
+      final game = _games.firstWhere((g) => g.id == gameId);
+      game.currentTurnPlayerId = playerId;
+      await _gameRepository.update(gameId, game);
+      notifyListeners();
+    } catch (e) {
+      logger.e('Error setting current turn player',
+          error: e, time: DateTime.now());
+    }
+  }
 }
