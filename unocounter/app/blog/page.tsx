@@ -1,5 +1,11 @@
+interface Post {
+  id: number;
+  title: string;
+  content: string;
+}
+
 export default async function Page() {
-  const posts = await getPosts();
+  const posts: Post[] = await getPosts();
 
   return (
     <ul>
