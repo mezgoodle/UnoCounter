@@ -1,5 +1,5 @@
-function GameList() {
-  return <div>page</div>;
-}
+import { redirect } from "next/navigation";
 
-export default GameList;
+export default function GameList() {
+  redirect("/");
+}
