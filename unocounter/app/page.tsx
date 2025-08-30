@@ -28,11 +28,6 @@ export default function Home() {
     }
   };
 
-  const handleGameCreated = () => {
-    setGames(getGames()); // Refresh the list
-    setShowCreateForm(false);
-  };
-
   const activeGames = games.filter((game) => game.isActive);
   const finishedGames = games.filter((game) => !game.isActive);
 
@@ -45,7 +40,7 @@ export default function Home() {
             🃏 UNO Score Tracker
           </h1>
           <p className="text-xl text-gray-600">
-            Keep track of your UNO game scores and see who's winning!
+            Keep track of your UNO game scores and see who&apos;s winning!
           </p>
         </div>
 

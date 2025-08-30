@@ -1,4 +1,4 @@
-import { Game, CreateGameData, AddRoundData } from "../types/game";
+import { Game, CreateGameData, AddRoundData, Round } from "../types/game";
 
 const GAMES_STORAGE_KEY = "unocounter_games";
 
@@ -17,11 +17,11 @@ export const getGames = (): Game[] => {
 
     const games = JSON.parse(stored);
     // Convert date strings back to Date objects
-    return games.map((game: any) => ({
+    return games.map((game: Game) => ({
       ...game,
       createdAt: new Date(game.createdAt),
       updatedAt: new Date(game.updatedAt),
-      rounds: game.rounds.map((round: any) => ({
+      rounds: game.rounds.map((round: Round) => ({
         ...round,
         timestamp: new Date(round.timestamp),
       })),
@@ -49,7 +49,7 @@ export const createGame = (data: CreateGameData): Game => {
 
   const newGame: Game = {
     id: generateId(),
-    players: data.playerNames.map((name, index) => ({
+    players: data.playerNames.map((name) => ({
       id: generateId(),
       name,
       totalScore: 0,
