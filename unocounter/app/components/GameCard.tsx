@@ -23,7 +23,7 @@ export default function GameCard({ game, onDelete }: GameCardProps) {
   const getWinner = () => {
     if (!game.players.length) return null;
     return game.players.reduce((prev, current) =>
-      prev.totalScore > current.totalScore ? prev : current
+      prev.totalScore < current.totalScore ? prev : current
     );
   };
 
