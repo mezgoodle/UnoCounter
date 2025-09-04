@@ -107,7 +107,7 @@ export default function GamePage() {
     if (!game.players.length) return null;
     return game.players.reduce(
       (prev: Game["players"][0], current: Game["players"][0]) =>
-        prev.totalScore > current.totalScore ? prev : current
+        prev.totalScore < current.totalScore ? prev : current
     );
   };
 
@@ -224,32 +224,27 @@ export default function GamePage() {
           </h2>
 
           <div className="space-y-3">
-            {game.players
-              .sort(
-                (a: Game["players"][0], b: Game["players"][0]) =>
-                  b.totalScore - a.totalScore
-              )
-              .map((player: Game["players"][0], index: number) => (
-                <div
-                  key={player.id}
-                  className="flex items-center justify-between p-3 rounded-lg bg-gray-50"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-lg font-bold text-gray-400 w-8">
-                      {index + 1}
-                    </span>
-                    <span className="font-medium text-gray-900">
-                      {player.name}
-                    </span>
-                    {getWinner()?.id === player.id && (
-                      <span className="text-yellow-600">🏆</span>
-                    )}
-                  </div>
-                  <span className="text-xl font-bold text-gray-900">
-                    {player.totalScore}
+            {game.players.map((player: Game["players"][0], index: number) => (
+              <div
+                key={player.id}
+                className="flex items-center justify-between p-3 rounded-lg bg-gray-50"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-lg font-bold text-gray-400 w-8">
+                    {index + 1}
                   </span>
+                  <span className="font-medium text-gray-900">
+                    {player.name}
+                  </span>
+                  {getWinner()?.id === player.id && (
+                    <span className="text-yellow-600">🏆</span>
+                  )}
                 </div>
-              ))}
+                <span className="text-xl font-bold text-gray-900">
+                  {player.totalScore}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
 
