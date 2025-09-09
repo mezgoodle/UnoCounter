@@ -10,6 +10,10 @@ jobs:
   lint:
     name: Run linter
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    concurrency:
+      group: lint-${{ github.ref }}
+      cancel-in-progress: true
 
     steps:
       - name: Checkout code
