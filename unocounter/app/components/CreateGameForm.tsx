@@ -65,13 +65,14 @@ export default function CreateGameForm() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-3">
-          <label className="block text-sm font-medium text-gray-700">
+          <label htmlFor="player-0" className="block text-sm font-medium text-gray-700">
             Player Names
           </label>
 
           {playerNames.map((name, index) => (
             <div key={index} className="flex gap-2">
               <input
+                id={`player-${index}`}
                 type="text"
                 value={name}
                 onChange={(e) => updatePlayerName(index, e.target.value)}

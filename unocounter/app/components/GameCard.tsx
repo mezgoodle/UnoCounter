@@ -69,7 +69,7 @@ export default function GameCard({ game, onDelete }: GameCardProps) {
       </div>
 
       {!game.isActive && getWinner() && (
-        <div className="mb-4 p-3 bg-yellow-50 rounded-md">
+        <div data-testid="winner-container" className="mb-4 p-3 bg-yellow-50 rounded-md">
           <p className="text-sm text-yellow-800">
             🏆 Winner: <strong>{getWinner()?.name}</strong> (
             {getWinner()?.totalScore} points)
