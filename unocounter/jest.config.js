@@ -16,4 +16,14 @@ module.exports = {
       },
     ],
   },
+  collectCoverage: true,
+  coverageDirectory: 'coverage',
+  coverageReporters: ['json', 'lcov', 'text', 'clover'],
+  collectCoverageFrom: [
+    'app/**/*.{ts,tsx}',
+    '!app/**/*.test.{ts,tsx}',
+    '!app/layout.tsx',
+    '!app/types/**/*.ts',
+    '!app/**/__tests__/**'
+  ],
 };
