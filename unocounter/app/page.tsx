@@ -12,7 +12,6 @@ export default function Home() {
   const [showCreateForm, setShowCreateForm] = useState(false);
 
   useEffect(() => {
-    // Load games from storage
     setGames(getGames());
   }, []);
 
@@ -23,7 +22,7 @@ export default function Home() {
       )
     ) {
       if (deleteGame(gameId)) {
-        setGames(getGames()); // Refresh the list
+        setGames(getGames());
       }
     }
   };
@@ -34,7 +33,6 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-6xl mx-auto px-4 py-8">
-        {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
             🃏 UNO Score Tracker
