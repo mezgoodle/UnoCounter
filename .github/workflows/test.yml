@@ -2,9 +2,9 @@ name: Test and Coverage
 
 on:
   push:
-    branches: [main, master, develop]
+    branches: [main]
   pull_request:
-    branches: [main, master, develop]
+    branches: [main]
 
 jobs:
   test:
@@ -23,14 +23,18 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: "npm"
+          cache-dependency-path: "unocounter/package-lock.json"
 
       - name: Install dependencies
+        working-directory: ./unocounter
         run: npm ci
 
       - name: Run linter
+        working-directory: ./unocounter
         run: npm run lint
 
       - name: Run tests with coverage
+        working-directory: ./unocounter
         run: npm run test:cov
 
       - name: Upload coverage reports
@@ -38,10 +42,11 @@ jobs:
         if: always()
         with:
           name: coverage-report
-          path: coverage/
+          path: unocounter/coverage/
           retention-days: 30
 
       - name: Coverage Summary
+        working-directory: ./unocounter
         run: |
           echo "## Test Coverage Summary" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
