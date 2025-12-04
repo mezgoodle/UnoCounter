@@ -78,4 +78,15 @@ describe("GameCard Component", () => {
       screen.queryByRole("button", { name: /Delete/i })
     ).not.toBeInTheDocument();
   });
+
+  test("handles game with no players", () => {
+    const emptyGame: Game = {
+      ...mockGame,
+      players: [],
+    };
+    render(<GameCard game={emptyGame} />);
+
+    // Should render without errors
+    expect(screen.getByText(/Game #me-123/i)).toBeInTheDocument();
+  });
 });

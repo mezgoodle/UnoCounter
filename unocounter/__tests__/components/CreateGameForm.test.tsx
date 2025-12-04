@@ -105,16 +105,6 @@ describe("CreateGameForm Component", () => {
     expect(mockedCreateGame).not.toHaveBeenCalled();
   });
 
-  test("shows alert if fewer than 2 players", () => {
-    // This state shouldn't be reachable via UI due to remove logic,
-    // but good to test the validation logic if we could force it.
-    // However, the component logic prevents removing below 2.
-    // We can try to manually set state if we could, but let's just trust the UI logic for now
-    // or we can mock the initial state if we refactor.
-    // Actually, let's just skip this specific test case as it's hard to reach via UI interaction
-    // without modifying the component to allow < 2 players.
-  });
-
   test("handles submission error", async () => {
     const consoleSpy = jest
       .spyOn(console, "error")

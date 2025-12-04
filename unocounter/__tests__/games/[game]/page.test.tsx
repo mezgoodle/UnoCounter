@@ -127,6 +127,25 @@ describe("GamePage", () => {
     });
   });
 
+  test("cancels score form", async () => {
+    mockedGetGame.mockReturnValue(mockGame);
+    render(<GamePage />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/UNO Game #me-123/i)).toBeInTheDocument();
+    });
+
+    // Open form
+    fireEvent.click(screen.getByText("Add Round Scores"));
+    expect(screen.getByText("Round 1 Scores")).toBeInTheDocument();
+
+    // Cancel
+    const cancelButtons = screen.getAllByRole("button", { name: /Cancel/i });
+    fireEvent.click(cancelButtons[cancelButtons.length - 1]); // Click the cancel in the form
+
+    expect(screen.queryByText("Round 1 Scores")).not.toBeInTheDocument();
+  });
+
   test("ends game", async () => {
     mockedGetGame.mockReturnValue(mockGame);
     const finishedGame = { ...mockGame, isActive: false };

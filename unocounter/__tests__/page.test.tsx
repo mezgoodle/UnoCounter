@@ -72,6 +72,20 @@ describe("Home Page", () => {
     expect(screen.queryByText(/Finished Games/i)).not.toBeInTheDocument();
   });
 
+  test("opens create form when clicking 'Create Your First Game'", () => {
+    mockedGetGames.mockReturnValue([]);
+    render(<Home />);
+
+    const createButton = screen.getByRole("button", {
+      name: /Create Your First Game/i,
+    });
+    fireEvent.click(createButton);
+
+    expect(
+      screen.getByRole("heading", { name: /Create New Game/i })
+    ).toBeInTheDocument();
+  });
+
   test("displays active and finished games from storage", () => {
     mockedGetGames.mockReturnValue([mockActiveGame, mockFinishedGame]);
 
