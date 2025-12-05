@@ -29,14 +29,8 @@ export default function CreateGameForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate that all player names are filled
     if (playerNames.some((name) => name.trim() === "")) {
       alert("Please fill in all player names");
-      return;
-    }
-
-    if (playerNames.length < 2) {
-      alert("You need at least 2 players");
       return;
     }
 
@@ -47,7 +41,6 @@ export default function CreateGameForm() {
         playerNames: playerNames.map((name) => name.trim()),
       });
 
-      // Redirect to the new game
       router.push(`/games/${newGame.id}`);
     } catch (error) {
       console.error("Error creating game:", error);
