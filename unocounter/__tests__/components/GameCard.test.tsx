@@ -86,7 +86,7 @@ describe("GameCard Component", () => {
     };
     render(<GameCard game={emptyGame} />);
 
-    // Should render without errors
     expect(screen.getByText(/Game #me-123/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Winner:/i)).not.toBeInTheDocument();
   });
 });

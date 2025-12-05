@@ -1,6 +1,5 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import "@testing-library/jest-dom";
 import GamePage from "../../../app/games/[game]/page";
 import { getGame, addRound, endGame } from "../../../app/lib/storage";
 import { useParams, useRouter } from "next/navigation";
@@ -44,7 +43,7 @@ describe("GamePage", () => {
   });
 
   test("renders loading state initially", () => {
-    mockedGetGame.mockReturnValue(null); // Simulate delay or initial state if needed, but component sets loading true initially
+    mockedGetGame.mockReturnValue(null);
     render(<GamePage />);
     expect(screen.getByText("Loading...")).toBeInTheDocument();
   });

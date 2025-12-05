@@ -129,7 +129,7 @@ Test coverage reports are automatically generated and uploaded to Codecov on eve
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Submit a Pull Request for any improvements.
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/AmazingFeature`)

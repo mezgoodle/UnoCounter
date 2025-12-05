@@ -1,9 +1,9 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import "@testing-library/jest-dom";
 import CreateGameForm from "../../app/components/CreateGameForm";
 import { createGame } from "../../app/lib/storage";
 import { useRouter } from "next/navigation";
+import { Game } from "@/app/types/game";
 
 // Mock dependencies
 jest.mock("../../app/lib/storage");
@@ -74,7 +74,7 @@ describe("CreateGameForm Component", () => {
 
   test("submits form with valid data", async () => {
     const mockGame = { id: "123" };
-    mockedCreateGame.mockReturnValue(mockGame as any);
+    mockedCreateGame.mockReturnValue(mockGame as Game);
 
     render(<CreateGameForm />);
 

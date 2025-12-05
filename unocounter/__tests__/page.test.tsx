@@ -1,10 +1,8 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
-import "@testing-library/jest-dom";
 import Home from "../app/page";
 import { getGames, deleteGame } from "../app/lib/storage";
-import { Game } from "../app/types/game";
-import { Player } from "../app/types/game";
+import { Game, Player } from "../app/types/game";
 
 jest.mock("../app/lib/storage");
 
