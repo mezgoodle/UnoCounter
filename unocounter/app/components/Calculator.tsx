@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Button from "./Button";
+import { evaluate } from "mathjs";
 
 interface CalculatorProps {
   initialValue?: number;
@@ -38,10 +39,7 @@ export default function Calculator({
 
   const handleCalculate = () => {
     try {
-      // Basic evaluation - safer than eval for this limited scope, but eval is easy here.
-      // We'll stick to a simple eval since we control the input (digits and ops).
-      // eslint-disable-next-line no-eval
-      const result = eval(display.replace(/[^-+*\/0-9\s.]/g, ""));
+      const result = evaluate(display);
       setDisplay(String(result));
       setResetNext(true);
     } catch (e) {
@@ -52,11 +50,9 @@ export default function Calculator({
 
   const handleApply = () => {
     let finalValue = display;
-    // If it looks like an expression, calculate it first
     if (/[\+\-\*\/]/.test(display) && !display.includes("Error")) {
       try {
-        // eslint-disable-next-line no-eval
-        finalValue = String(eval(display.replace(/[^-+*\/0-9\s.]/g, "")));
+        finalValue = String(evaluate(display));
       } catch (e) {
         // ignore
       }
