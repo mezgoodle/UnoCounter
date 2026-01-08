@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import CreateGameForm from "./components/CreateGameForm";
 import GameCard from "./components/GameCard";
 import Button from "./components/Button";
@@ -8,13 +8,8 @@ import { Game } from "./types/game";
 import { getGames, deleteGame } from "./lib/storage";
 
 export default function Home() {
-  const [games, setGames] = useState<Game[]>([]);
+  const [games, setGames] = useState<Game[]>(() => getGames());
   const [showCreateForm, setShowCreateForm] = useState(false);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setGames(getGames());
-  }, []);
 
   const handleDeleteGame = (gameId: string) => {
     if (
