@@ -2,15 +2,9 @@ import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import Calculator from "../../app/components/Calculator";
 
-// Mock mathjs since we only want to test the UI integration,
-// or let it run if we want integration test.
-// Given it's a unit test, mocking might be safer but mathjs is stable.
-// Let's mock it to avoid potential issues with ESM/CommonJS in Jest if any,
-// and to strictly test our component logic.
 jest.mock("mathjs", () => ({
   evaluate: jest.fn((expr) => {
     try {
-      // Simple mock implementation for basic tests
       // eslint-disable-next-line no-eval
       return eval(expr);
     } catch {
@@ -27,21 +21,12 @@ describe("Calculator Component", () => {
     jest.clearAllMocks();
   });
 
-  const getDisplay = () => {
-    // The display is a div, while buttons are buttons.
-    // We can search for the text within a div that has the display classes or just is not a button.
-    // But 'getByText' with selector is easiest if the text is unique to display + button.
-    // However, if display is "0" and button is "0", we have duplicates.
-    // We can use custom matcher or just get all and filter.
-    // Or we can add a testid to the component? No, let's stick to blackbox testing if possible.
-    // The display is the only div with text in the modal content that is not a button label?
-    // Actually the modal has structure.
-    // Let's rely on the fact that result is in a div.
+  const getDisplayValue = () => {
     return screen
       .getAllByText(/./)
       .find(
         (el) => el.tagName === "DIV" && el.className.includes("overflow-x-auto")
-      );
+      )?.textContent;
   };
 
   test("renders correctly with initial value", () => {
@@ -53,17 +38,14 @@ describe("Calculator Component", () => {
       />
     );
 
-    // Initial value 10. Button 1 and 0 exist.
-    // But "10" is likely unique (no button 10).
     expect(screen.getByText("10", { selector: "div" })).toBeInTheDocument();
-
-    expect(screen.getByText("C")).toBeInTheDocument();
-    expect(screen.getByText("=")).toBeInTheDocument();
-    expect(screen.getByText("Apply")).toBeInTheDocument();
-    expect(screen.getByText("Cancel")).toBeInTheDocument();
+    expect(screen.getByText("C", { selector: "button" })).toBeInTheDocument();
+    expect(
+      screen.getByText("Apply", { selector: "button" })
+    ).toBeInTheDocument();
   });
 
-  test("updates display when digits are clicked", () => {
+  test("updates display when all digits and dot are clicked", () => {
     render(
       <Calculator
         initialValue={0}
@@ -72,15 +54,33 @@ describe("Calculator Component", () => {
       />
     );
 
-    fireEvent.click(screen.getByText("1"));
-    fireEvent.click(screen.getByText("2"));
-    fireEvent.click(screen.getByText("3"));
+    const inputs = ["7", "8", "9", "4", "5", "6", "1", "2", "3", "0", "."];
 
-    // "123" is unique (no button 123)
-    expect(screen.getByText("123", { selector: "div" })).toBeInTheDocument();
+    inputs.forEach((char) => {
+      fireEvent.click(screen.getByText(char, { selector: "button" }));
+    });
+
+    expect(getDisplayValue()).toBe("7894561230.");
   });
 
-  test("performs addition", () => {
+  test("handles all operators correctly", () => {
+    render(
+      <Calculator
+        initialValue={5}
+        onClose={mockOnClose}
+        onApply={mockOnApply}
+      />
+    );
+
+    fireEvent.click(screen.getByText("/", { selector: "button" }));
+    fireEvent.click(screen.getByText("*", { selector: "button" }));
+    fireEvent.click(screen.getByText("-", { selector: "button" }));
+    fireEvent.click(screen.getByText("+", { selector: "button" }));
+
+    expect(getDisplayValue()).toContain("5 /  *  -  + ");
+  });
+
+  test("performs addition correctly", () => {
     render(
       <Calculator
         initialValue={0}
@@ -89,32 +89,12 @@ describe("Calculator Component", () => {
       />
     );
 
-    fireEvent.click(screen.getByText("5"));
-    fireEvent.click(screen.getByText("+"));
-    fireEvent.click(screen.getByText("3"));
-    fireEvent.click(screen.getByText("="));
+    fireEvent.click(screen.getByText("5", { selector: "button" }));
+    fireEvent.click(screen.getByText("+", { selector: "button" }));
+    fireEvent.click(screen.getByText("3", { selector: "button" }));
+    fireEvent.click(screen.getByText("=", { selector: "button" }));
 
-    // Result "8" vs button "8".
-    expect(screen.getByText("8", { selector: "div" })).toBeInTheDocument();
-  });
-
-  test("performs subtraction", () => {
-    render(
-      <Calculator
-        initialValue={0}
-        onClose={mockOnClose}
-        onApply={mockOnApply}
-      />
-    );
-
-    fireEvent.click(screen.getByText("1"));
-    fireEvent.click(screen.getByText("0"));
-    fireEvent.click(screen.getByText("-"));
-    fireEvent.click(screen.getByText("4"));
-    fireEvent.click(screen.getByText("="));
-
-    // Result "6" vs button "6".
-    expect(screen.getByText("6", { selector: "div" })).toBeInTheDocument();
+    expect(getDisplayValue()).toBe("8");
   });
 
   test("clears display on 'C' click", () => {
@@ -126,12 +106,11 @@ describe("Calculator Component", () => {
       />
     );
 
-    fireEvent.click(screen.getByText("C"));
-    // "0" vs button "0".
-    expect(screen.getByText("0", { selector: "div" })).toBeInTheDocument();
+    fireEvent.click(screen.getByText("C", { selector: "button" }));
+    expect(getDisplayValue()).toBe("0");
   });
 
-  test("calls onApply with result", () => {
+  test("calls onApply with result implicitly calculated", () => {
     render(
       <Calculator
         initialValue={0}
@@ -140,11 +119,10 @@ describe("Calculator Component", () => {
       />
     );
 
-    // 5 * 2 = 10
-    fireEvent.click(screen.getByText("5"));
-    fireEvent.click(screen.getByText("*"));
-    fireEvent.click(screen.getByText("2"));
-    fireEvent.click(screen.getByText("Apply")); // Apply should calculate implicitly
+    fireEvent.click(screen.getByText("5", { selector: "button" }));
+    fireEvent.click(screen.getByText("*", { selector: "button" }));
+    fireEvent.click(screen.getByText("2", { selector: "button" }));
+    fireEvent.click(screen.getByText("Apply", { selector: "button" }));
 
     expect(mockOnApply).toHaveBeenCalledWith(10);
   });
@@ -158,11 +136,11 @@ describe("Calculator Component", () => {
       />
     );
 
-    fireEvent.click(screen.getByText("Cancel"));
+    fireEvent.click(screen.getByText("Cancel", { selector: "button" }));
     expect(mockOnClose).toHaveBeenCalledTimes(1);
   });
 
-  test("handles partial expressions on Apply", () => {
+  test("handles calculation errors gracefully (Syntax Error on =)", () => {
     render(
       <Calculator
         initialValue={0}
@@ -171,18 +149,71 @@ describe("Calculator Component", () => {
       />
     );
 
-    // "5 + " then apply -> might error or return 5 depending on eval logic,
-    // but code says: match /[\+\-\*\/]/ then evaluate.
-    // basic eval("5 +") throws. Code has try/catch.
-    // If error, it sets display to Error and returns.
-    // Let's test a valid calculation flow mostly.
+    fireEvent.click(screen.getByText("1", { selector: "button" }));
+    fireEvent.click(screen.getByText("+", { selector: "button" }));
+    fireEvent.click(screen.getByText("*", { selector: "button" }));
 
-    fireEvent.click(screen.getByText("5"));
-    fireEvent.click(screen.getByText("+"));
-    fireEvent.click(screen.getByText("5"));
-    // Display is "5 + 5"
-    fireEvent.click(screen.getByText("Apply"));
+    fireEvent.click(screen.getByText("=", { selector: "button" }));
 
-    expect(mockOnApply).toHaveBeenCalledWith(10);
+    expect(getDisplayValue()).toBe("Error");
+  });
+
+  test("handles apply errors gracefully (Syntax Error on Apply)", () => {
+    render(
+      <Calculator
+        initialValue={0}
+        onClose={mockOnClose}
+        onApply={mockOnApply}
+      />
+    );
+
+    fireEvent.click(screen.getByText("1", { selector: "button" }));
+    fireEvent.click(screen.getByText("+", { selector: "button" }));
+    fireEvent.click(screen.getByText("*", { selector: "button" }));
+
+    fireEvent.click(screen.getByText("Apply", { selector: "button" }));
+
+    expect(getDisplayValue()).toBe("Error");
+    expect(mockOnApply).not.toHaveBeenCalled();
+  });
+
+  test("handles NaN result on Apply", () => {
+    render(
+      <Calculator
+        initialValue={0}
+        onClose={mockOnClose}
+        onApply={mockOnApply}
+      />
+    );
+
+    fireEvent.click(screen.getByText("0", { selector: "button" }));
+    fireEvent.click(screen.getByText("/", { selector: "button" }));
+    fireEvent.click(screen.getByText("0", { selector: "button" }));
+
+    fireEvent.click(screen.getByText("Apply", { selector: "button" }));
+
+    expect(getDisplayValue()).toBe("Error");
+    expect(mockOnApply).not.toHaveBeenCalled();
+  });
+
+  test("does not apply if display is already Error", () => {
+    render(
+      <Calculator
+        initialValue={0}
+        onClose={mockOnClose}
+        onApply={mockOnApply}
+      />
+    );
+
+    fireEvent.click(screen.getByText("1", { selector: "button" }));
+    fireEvent.click(screen.getByText("/", { selector: "button" }));
+    fireEvent.click(screen.getByText("/", { selector: "button" }));
+    fireEvent.click(screen.getByText("=", { selector: "button" }));
+
+    expect(getDisplayValue()).toBe("Error");
+
+    fireEvent.click(screen.getByText("Apply", { selector: "button" }));
+
+    expect(mockOnApply).not.toHaveBeenCalled();
   });
 });
