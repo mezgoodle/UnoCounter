@@ -12,6 +12,7 @@ export default function Home() {
   const [showCreateForm, setShowCreateForm] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setGames(getGames());
   }, []);
 
