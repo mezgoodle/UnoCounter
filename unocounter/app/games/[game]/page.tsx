@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Button from "../../components/Button";
+import Calculator from "../../components/Calculator";
 import { Game } from "../../types/game";
 import { getGame, addRound, endGame } from "../../lib/storage";
 
@@ -16,6 +17,9 @@ export default function GamePage() {
   const [roundScores, setRoundScores] = useState<{
     [playerId: string]: number;
   }>({});
+  const [activeCalculatorPlayerId, setActiveCalculatorPlayerId] = useState<
+    string | null
+  >(null);
 
   const gameId = params.game as string;
 
@@ -47,6 +51,16 @@ export default function GamePage() {
       ...prev,
       [playerId]: numScore,
     }));
+  };
+
+  const handleCalculatorApply = (val: number) => {
+    if (activeCalculatorPlayerId) {
+      setRoundScores((prev) => ({
+        ...prev,
+        [activeCalculatorPlayerId]: val,
+      }));
+      setActiveCalculatorPlayerId(null);
+    }
   };
 
   const handleSubmitRound = () => {
@@ -192,15 +206,24 @@ export default function GamePage() {
                   <label className="flex-1 text-sm font-medium text-gray-700">
                     {player.name}
                   </label>
-                  <input
-                    type="number"
-                    value={roundScores[player.id] || ""}
-                    onChange={(e) =>
-                      handleScoreChange(player.id, e.target.value)
-                    }
-                    placeholder="0"
-                    className="w-24 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
+                  <div className="flex gap-2 w-full">
+                    <input
+                      type="number"
+                      value={roundScores[player.id] || ""}
+                      onChange={(e) =>
+                        handleScoreChange(player.id, e.target.value)
+                      }
+                      placeholder="0"
+                      className="w-24 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                    <Button
+                      variant="secondary"
+                      onClick={() => setActiveCalculatorPlayerId(player.id)}
+                      className="!px-3"
+                    >
+                      🧮
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -215,6 +238,14 @@ export default function GamePage() {
               </Button>
             </div>
           </div>
+        )}
+
+        {activeCalculatorPlayerId && (
+          <Calculator
+            initialValue={roundScores[activeCalculatorPlayerId] || 0}
+            onClose={() => setActiveCalculatorPlayerId(null)}
+            onApply={(value) => handleCalculatorApply(value)}
+          />
         )}
 
         {/* Player Scores */}

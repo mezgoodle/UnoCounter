@@ -145,6 +145,46 @@ describe("GamePage", () => {
     expect(screen.queryByText("Round 1 Scores")).not.toBeInTheDocument();
   });
 
+  test("uses calculator to update score", async () => {
+    mockedGetGame.mockReturnValue(mockGame);
+    render(<GamePage />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/UNO Game #me-123/i)).toBeInTheDocument();
+    });
+
+    // Open form
+    fireEvent.click(screen.getByText("Add Round Scores"));
+    expect(screen.getByText("Round 1 Scores")).toBeInTheDocument();
+
+    // Open calculator for first player
+    const calculatorButtons = screen.getAllByText("🧮");
+    fireEvent.click(calculatorButtons[0]);
+
+    // Calculator should be visible
+    expect(screen.getByText("Apply")).toBeInTheDocument();
+    expect(screen.getByText("C")).toBeInTheDocument();
+
+    // perform calculation: 5 + 3 = 8
+    fireEvent.click(screen.getByText("5"));
+    fireEvent.click(screen.getByText("+"));
+    fireEvent.click(screen.getByText("3"));
+    fireEvent.click(screen.getByText("="));
+
+    // Verify result in calculator display (we can't easily check display value as it's just text,
+    // but we can check if Apply works with the result)
+
+    // Apply result
+    fireEvent.click(screen.getByText("Apply"));
+
+    // Calculator should be closed
+    expect(screen.queryByText("C")).not.toBeInTheDocument();
+
+    // Input should have the value 8
+    const inputs = screen.getAllByRole("spinbutton");
+    expect(inputs[0]).toHaveValue(8);
+  });
+
   test("ends game", async () => {
     mockedGetGame.mockReturnValue(mockGame);
     const finishedGame = { ...mockGame, isActive: false };
