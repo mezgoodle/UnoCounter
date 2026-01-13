@@ -37,6 +37,31 @@ export default function Calculator({
     setResetNext(true);
   };
 
+  const handleBackspace = () => {
+    if (resetNext) {
+      setDisplay("0");
+      setResetNext(true); // Keep it ready for new input
+    } else {
+      if (
+        display.length <= 1 ||
+        display === "Error" ||
+        display === "Infinity" ||
+        display === "-Infinity"
+      ) {
+        setDisplay("0");
+        setResetNext(true); // If we cleared everything manually, treating it like a fresh start might be better, or just 0.
+        // Let's say if we delete the last char, we get 0 and can type new digits.
+      } else {
+        // Handle " 0 " or " + " spacing if we want to be fancy, but simple slice is fine for now
+        // since we add spaces around ops.
+        // If we remove a space, we should probably remove the op too?
+        // Our ops are " + ", so removing last char removes " ".
+        // Let's just remove one char. The user can click backspace multiple times.
+        setDisplay((prev) => prev.slice(0, -1));
+      }
+    }
+  };
+
   const handleCalculate = () => {
     try {
       const result = evaluate(display);
@@ -86,6 +111,13 @@ export default function Calculator({
           </button>
           <button
             type="button"
+            onClick={handleBackspace}
+            className="col-span-1 bg-orange-100 text-orange-800 p-3 rounded font-bold hover:bg-orange-200"
+          >
+            ⌫
+          </button>
+          <button
+            type="button"
             onClick={() => handleOp("/")}
             className="bg-gray-200 p-3 rounded hover:bg-gray-300"
           >
@@ -97,13 +129,6 @@ export default function Calculator({
             className="bg-gray-200 p-3 rounded hover:bg-gray-300"
           >
             *
-          </button>
-          <button
-            type="button"
-            onClick={() => handleOp("-")}
-            className="bg-gray-200 p-3 rounded hover:bg-gray-300"
-          >
-            -
           </button>
 
           <button
@@ -129,10 +154,10 @@ export default function Calculator({
           </button>
           <button
             type="button"
-            onClick={() => handleOp("+")}
-            className="bg-gray-200 p-3 rounded hover:bg-gray-300 row-span-2 flex items-center justify-center"
+            onClick={() => handleOp("-")}
+            className="bg-gray-200 p-3 rounded hover:bg-gray-300"
           >
-            +
+            -
           </button>
 
           <button
@@ -155,6 +180,13 @@ export default function Calculator({
             className="bg-gray-50 p-3 rounded hover:bg-gray-100"
           >
             6
+          </button>
+          <button
+            type="button"
+            onClick={() => handleOp("+")}
+            className="bg-gray-200 p-3 rounded hover:bg-gray-300"
+          >
+            +
           </button>
 
           <button
