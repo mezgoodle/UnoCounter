@@ -37,6 +37,25 @@ export default function Calculator({
     setResetNext(true);
   };
 
+  const handleBackspace = () => {
+    if (resetNext) {
+      setDisplay("0");
+      setResetNext(true);
+    } else {
+      if (
+        display.length <= 1 ||
+        display === "Error" ||
+        display === "Infinity" ||
+        display === "-Infinity"
+      ) {
+        setDisplay("0");
+        setResetNext(true);
+      } else {
+        setDisplay((prev) => prev.slice(0, -1));
+      }
+    }
+  };
+
   const handleCalculate = () => {
     try {
       const result = evaluate(display);
@@ -86,6 +105,13 @@ export default function Calculator({
           </button>
           <button
             type="button"
+            onClick={handleBackspace}
+            className="col-span-1 bg-orange-100 text-orange-800 p-3 rounded font-bold hover:bg-orange-200"
+          >
+            ⌫
+          </button>
+          <button
+            type="button"
             onClick={() => handleOp("/")}
             className="bg-gray-200 p-3 rounded hover:bg-gray-300"
           >
@@ -97,13 +123,6 @@ export default function Calculator({
             className="bg-gray-200 p-3 rounded hover:bg-gray-300"
           >
             *
-          </button>
-          <button
-            type="button"
-            onClick={() => handleOp("-")}
-            className="bg-gray-200 p-3 rounded hover:bg-gray-300"
-          >
-            -
           </button>
 
           <button
@@ -129,10 +148,10 @@ export default function Calculator({
           </button>
           <button
             type="button"
-            onClick={() => handleOp("+")}
-            className="bg-gray-200 p-3 rounded hover:bg-gray-300 row-span-2 flex items-center justify-center"
+            onClick={() => handleOp("-")}
+            className="bg-gray-200 p-3 rounded hover:bg-gray-300"
           >
-            +
+            -
           </button>
 
           <button
@@ -155,6 +174,13 @@ export default function Calculator({
             className="bg-gray-50 p-3 rounded hover:bg-gray-100"
           >
             6
+          </button>
+          <button
+            type="button"
+            onClick={() => handleOp("+")}
+            className="bg-gray-200 p-3 rounded hover:bg-gray-300"
+          >
+            +
           </button>
 
           <button
