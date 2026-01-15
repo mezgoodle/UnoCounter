@@ -40,7 +40,7 @@ export default function Calculator({
   const handleBackspace = () => {
     if (resetNext) {
       setDisplay("0");
-      setResetNext(true); // Keep it ready for new input
+      setResetNext(true);
     } else {
       if (
         display.length <= 1 ||
@@ -49,14 +49,8 @@ export default function Calculator({
         display === "-Infinity"
       ) {
         setDisplay("0");
-        setResetNext(true); // If we cleared everything manually, treating it like a fresh start might be better, or just 0.
-        // Let's say if we delete the last char, we get 0 and can type new digits.
+        setResetNext(true);
       } else {
-        // Handle " 0 " or " + " spacing if we want to be fancy, but simple slice is fine for now
-        // since we add spaces around ops.
-        // If we remove a space, we should probably remove the op too?
-        // Our ops are " + ", so removing last char removes " ".
-        // Let's just remove one char. The user can click backspace multiple times.
         setDisplay((prev) => prev.slice(0, -1));
       }
     }
