@@ -19,6 +19,7 @@ export const getGames = (): Game[] => {
     // Convert date strings back to Date objects
     return games.map((game: Game) => ({
       ...game,
+      dealerId: game.dealerId || game.players[0]?.id || "",
       createdAt: new Date(game.createdAt),
       updatedAt: new Date(game.updatedAt),
       rounds: game.rounds.map((round: Round) => ({
@@ -55,11 +56,19 @@ export const createGame = (data: CreateGameData): Game => {
       totalScore: 0,
     })),
     currentTurn: 1,
+    dealerId: "",
     rounds: [],
     createdAt: new Date(),
     updatedAt: new Date(),
     isActive: true,
   };
+
+  if (newGame.players.length > 0) {
+    const randomPlayerIndex = Math.floor(
+      Math.random() * newGame.players.length,
+    );
+    newGame.dealerId = newGame.players[randomPlayerIndex].id;
+  }
 
   games.push(newGame);
   saveGames(games);
@@ -67,13 +76,10 @@ export const createGame = (data: CreateGameData): Game => {
   return newGame;
 };
 
-// Get a specific game by ID
 export const getGame = (id: string): Game | null => {
   const games = getGames();
   return games.find((game) => game.id === id) || null;
 };
-
-// Add a round to a game
 export const addRound = (gameId: string, data: AddRoundData): Game | null => {
   const games = getGames();
   const gameIndex = games.findIndex((game) => game.id === gameId);
@@ -87,10 +93,9 @@ export const addRound = (gameId: string, data: AddRoundData): Game | null => {
     timestamp: new Date(),
   };
 
-  // Update player total scores
   const updatedPlayers = game.players.map((player) => {
     const roundScore = data.scores.find(
-      (score) => score.playerId === player.id
+      (score) => score.playerId === player.id,
     );
     return {
       ...player,
@@ -98,10 +103,22 @@ export const addRound = (gameId: string, data: AddRoundData): Game | null => {
     };
   });
 
+  let nextDealerId = game.dealerId;
+  if (game.dealerId) {
+    const currentDealerIndex = game.players.findIndex(
+      (p) => p.id === game.dealerId,
+    );
+    if (currentDealerIndex !== -1) {
+      const nextDealerIndex = (currentDealerIndex + 1) % game.players.length;
+      nextDealerId = game.players[nextDealerIndex].id;
+    }
+  }
+
   const updatedGame: Game = {
     ...game,
     players: updatedPlayers,
     currentTurn: game.currentTurn + 1,
+    dealerId: nextDealerId,
     rounds: [...game.rounds, newRound],
     updatedAt: new Date(),
   };
@@ -112,7 +129,6 @@ export const addRound = (gameId: string, data: AddRoundData): Game | null => {
   return updatedGame;
 };
 
-// End a game (mark as inactive)
 export const endGame = (gameId: string): Game | null => {
   const games = getGames();
   const gameIndex = games.findIndex((game) => game.id === gameId);
@@ -131,7 +147,6 @@ export const endGame = (gameId: string): Game | null => {
   return updatedGame;
 };
 
-// Delete a game
 export const deleteGame = (gameId: string): boolean => {
   const games = getGames();
   const filteredGames = games.filter((game) => game.id !== gameId);

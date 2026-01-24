@@ -14,6 +14,7 @@ export interface Game {
   id: string;
   players: Player[];
   currentTurn: number;
+  dealerId: string;
   rounds: Round[];
   createdAt: Date;
   updatedAt: Date;
