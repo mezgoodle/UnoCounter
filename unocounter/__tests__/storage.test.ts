@@ -5,11 +5,8 @@ import {
   saveGames,
   deleteGame,
   endGame,
-  generateId,
 } from "../app/lib/storage";
-import { Game } from "../app/types/game";
 
-// Mock localStorage
 const localStorageMock = (() => {
   let store: { [key: string]: string } = {};
   return {
