@@ -94,6 +94,12 @@ export default function GamePage() {
     }
   };
 
+  const DealerBadge = () => (
+    <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+      Dealer
+    </span>
+  );
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -205,11 +211,7 @@ export default function GamePage() {
                 <div key={player.id} className="flex items-center gap-4">
                   <label className="flex-1 text-sm font-medium text-gray-700">
                     {player.name}
-                    {game.dealerId === player.id && (
-                      <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                        Dealer
-                      </span>
-                    )}
+                    {game.dealerId === player.id && <DealerBadge />}
                   </label>
                   <div className="flex gap-2 w-full">
                     <input
@@ -272,11 +274,7 @@ export default function GamePage() {
                   <span className="font-medium text-gray-900">
                     {player.name}
                   </span>
-                  {game.dealerId === player.id && (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                      Dealer
-                    </span>
-                  )}
+                  {game.dealerId === player.id && <DealerBadge />}
                   {getWinner()?.id === player.id && (
                     <span className="text-yellow-600">🏆</span>
                   )}

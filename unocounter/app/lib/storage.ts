@@ -111,6 +111,8 @@ export const addRound = (gameId: string, data: AddRoundData): Game | null => {
     if (currentDealerIndex !== -1) {
       const nextDealerIndex = (currentDealerIndex + 1) % game.players.length;
       nextDealerId = game.players[nextDealerIndex].id;
+    } else if (game.players.length > 0) {
+      nextDealerId = game.players[0].id;
     }
   }
 
