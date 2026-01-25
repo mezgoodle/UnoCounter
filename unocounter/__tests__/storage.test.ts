@@ -35,41 +35,37 @@ describe("Storage Logic - Dealer", () => {
   });
 
   test("addRound rotates the dealer", () => {
-    const game = createGame({
-      playerNames: ["p1", "p2", "p3"],
-    });
-
-    game.players[0].id = "1";
-    game.players[1].id = "2";
-    game.players[2].id = "3";
-    game.dealerId = "1";
-
+    const originalMath = global.Math;
     const mockMath = Object.create(global.Math);
     mockMath.random = () => 0;
     global.Math = mockMath;
 
-    const fixedGame = createGame({
-      playerNames: ["A", "B", "C"],
-    });
+    try {
+      const fixedGame = createGame({
+        playerNames: ["A", "B", "C"],
+      });
 
-    expect(fixedGame.dealerId).toBe(fixedGame.players[0].id);
+      expect(fixedGame.dealerId).toBe(fixedGame.players[0].id);
 
-    const updatedGame = addRound(fixedGame.id, {
-      scores: fixedGame.players.map((p) => ({ playerId: p.id, score: 10 })),
-    });
+      const updatedGame = addRound(fixedGame.id, {
+        scores: fixedGame.players.map((p) => ({ playerId: p.id, score: 10 })),
+      });
 
-    expect(updatedGame).not.toBeNull();
-    expect(updatedGame?.dealerId).toBe(fixedGame.players[1].id);
+      expect(updatedGame).not.toBeNull();
+      expect(updatedGame?.dealerId).toBe(fixedGame.players[1].id);
 
-    const updatedGame2 = addRound(fixedGame.id, {
-      scores: fixedGame.players.map((p) => ({ playerId: p.id, score: 10 })),
-    });
-    expect(updatedGame2?.dealerId).toBe(fixedGame.players[2].id);
-    const updatedGame3 = addRound(fixedGame.id, {
-      scores: fixedGame.players.map((p) => ({ playerId: p.id, score: 10 })),
-    });
+      const updatedGame2 = addRound(fixedGame.id, {
+        scores: fixedGame.players.map((p) => ({ playerId: p.id, score: 10 })),
+      });
+      expect(updatedGame2?.dealerId).toBe(fixedGame.players[2].id);
+      const updatedGame3 = addRound(fixedGame.id, {
+        scores: fixedGame.players.map((p) => ({ playerId: p.id, score: 10 })),
+      });
 
-    expect(updatedGame3?.dealerId).toBe(fixedGame.players[0].id);
+      expect(updatedGame3?.dealerId).toBe(fixedGame.players[0].id);
+    } finally {
+      global.Math = originalMath;
+    }
   });
 
   test("getGames assigns default dealerId for legacy games", () => {
