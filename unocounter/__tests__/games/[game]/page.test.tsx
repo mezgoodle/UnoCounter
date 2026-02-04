@@ -307,4 +307,30 @@ describe("GamePage", () => {
       expect(screen.getByText("20")).toBeInTheDocument();
     });
   });
+
+  test("closes calculator when cancelled", async () => {
+    mockedGetGame.mockReturnValue(mockGame);
+    render(<GamePage />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/UNO Game #me-123/i)).toBeInTheDocument();
+    });
+
+    // Open form
+    fireEvent.click(screen.getByText("Add Round Scores"));
+
+    // Open calculator
+    const calculatorButtons = screen.getAllByText("🧮");
+    fireEvent.click(calculatorButtons[0]);
+
+    // Verify calculator is open
+    expect(screen.getByText("C")).toBeInTheDocument();
+
+    // Since calculator is in a portal/overlay (fixed inset-0), it might be later in DOM.
+    const cancels = screen.getAllByText("Cancel");
+    fireEvent.click(cancels[cancels.length - 1]); // Assume it's the last one rendered
+
+    // Verify calculator is closed
+    expect(screen.queryByText("C")).not.toBeInTheDocument();
+  });
 });

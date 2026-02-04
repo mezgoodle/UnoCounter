@@ -316,5 +316,17 @@ describe("Storage Logic", () => {
       const afterUndo = undoLastRound(game.id);
       expect(afterUndo?.dealerId).toBe(game.players[0].id);
     });
+
+    test("undoLastRound preserves dealer if current dealer not found in players", () => {
+      const game = createGame({ playerNames: ["A", "B"] });
+      // Manually corrupt dealerId
+      game.dealerId = "ghost_player";
+      saveGames([game]);
+
+      const afterUndo = undoLastRound(game.id);
+
+      // Should preserve the ghost ID since it couldn't rotate
+      expect(afterUndo?.dealerId).toBe("ghost_player");
+    });
   });
 });

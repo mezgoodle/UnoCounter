@@ -14,6 +14,7 @@ const mockGame: Game = {
   updatedAt: new Date("2023-01-01T13:00:00"),
   currentTurn: 0,
   isActive: true,
+  dealerId: "p1",
   rounds: [],
 };
 
@@ -51,14 +52,14 @@ describe("GameCard Component", () => {
   test("shows 'Continue Game' button for active games", () => {
     render(<GameCard game={mockGame} />);
     expect(
-      screen.getByRole("button", { name: /Continue Game/i })
+      screen.getByRole("button", { name: /Continue Game/i }),
     ).toBeInTheDocument();
   });
 
   test("shows 'View Game' button for finished games", () => {
     render(<GameCard game={mockFinishedGame} />);
     expect(
-      screen.getByRole("button", { name: /View Game/i })
+      screen.getByRole("button", { name: /View Game/i }),
     ).toBeInTheDocument();
   });
 
@@ -75,7 +76,7 @@ describe("GameCard Component", () => {
   test("does not render delete button if onDelete is not provided", () => {
     render(<GameCard game={mockGame} />);
     expect(
-      screen.queryByRole("button", { name: /Delete/i })
+      screen.queryByRole("button", { name: /Delete/i }),
     ).not.toBeInTheDocument();
   });
 
@@ -87,6 +88,19 @@ describe("GameCard Component", () => {
     render(<GameCard game={emptyGame} />);
 
     expect(screen.getByText(/Game #me-123/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Winner:/i)).not.toBeInTheDocument();
+  });
+
+  test("handles finished game with no players (returns null winner)", () => {
+    const emptyFinishedGame: Game = {
+      ...mockFinishedGame,
+      players: [],
+    };
+    render(<GameCard game={emptyFinishedGame} />);
+
+    // Should still render card content
+    expect(screen.getByText(/Finished/i)).toBeInTheDocument();
+    // Should NOT verify winner
     expect(screen.queryByText(/Winner:/i)).not.toBeInTheDocument();
   });
 });

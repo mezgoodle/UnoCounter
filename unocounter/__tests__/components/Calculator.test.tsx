@@ -25,7 +25,8 @@ describe("Calculator Component", () => {
     return screen
       .getAllByText(/./)
       .find(
-        (el) => el.tagName === "DIV" && el.className.includes("overflow-x-auto")
+        (el) =>
+          el.tagName === "DIV" && el.className.includes("overflow-x-auto"),
       )?.textContent;
   };
 
@@ -35,13 +36,13 @@ describe("Calculator Component", () => {
         initialValue={10}
         onClose={mockOnClose}
         onApply={mockOnApply}
-      />
+      />,
     );
 
     expect(screen.getByText("10", { selector: "div" })).toBeInTheDocument();
     expect(screen.getByText("C", { selector: "button" })).toBeInTheDocument();
     expect(
-      screen.getByText("Apply", { selector: "button" })
+      screen.getByText("Apply", { selector: "button" }),
     ).toBeInTheDocument();
   });
 
@@ -51,7 +52,7 @@ describe("Calculator Component", () => {
         initialValue={0}
         onClose={mockOnClose}
         onApply={mockOnApply}
-      />
+      />,
     );
 
     const inputs = ["7", "8", "9", "4", "5", "6", "1", "2", "3", "0", "."];
@@ -69,7 +70,7 @@ describe("Calculator Component", () => {
         initialValue={5}
         onClose={mockOnClose}
         onApply={mockOnApply}
-      />
+      />,
     );
 
     fireEvent.click(screen.getByText("/", { selector: "button" }));
@@ -86,7 +87,7 @@ describe("Calculator Component", () => {
         initialValue={0}
         onClose={mockOnClose}
         onApply={mockOnApply}
-      />
+      />,
     );
 
     fireEvent.click(screen.getByText("5", { selector: "button" }));
@@ -103,7 +104,7 @@ describe("Calculator Component", () => {
         initialValue={123}
         onClose={mockOnClose}
         onApply={mockOnApply}
-      />
+      />,
     );
 
     fireEvent.click(screen.getByText("C", { selector: "button" }));
@@ -116,7 +117,7 @@ describe("Calculator Component", () => {
         initialValue={0}
         onClose={mockOnClose}
         onApply={mockOnApply}
-      />
+      />,
     );
 
     fireEvent.click(screen.getByText("5", { selector: "button" }));
@@ -133,7 +134,7 @@ describe("Calculator Component", () => {
         initialValue={0}
         onClose={mockOnClose}
         onApply={mockOnApply}
-      />
+      />,
     );
 
     fireEvent.click(screen.getByText("Cancel", { selector: "button" }));
@@ -146,7 +147,7 @@ describe("Calculator Component", () => {
         initialValue={0}
         onClose={mockOnClose}
         onApply={mockOnApply}
-      />
+      />,
     );
 
     fireEvent.click(screen.getByText("1", { selector: "button" }));
@@ -164,7 +165,7 @@ describe("Calculator Component", () => {
         initialValue={0}
         onClose={mockOnClose}
         onApply={mockOnApply}
-      />
+      />,
     );
 
     fireEvent.click(screen.getByText("1", { selector: "button" }));
@@ -183,7 +184,7 @@ describe("Calculator Component", () => {
         initialValue={0}
         onClose={mockOnClose}
         onApply={mockOnApply}
-      />
+      />,
     );
 
     fireEvent.click(screen.getByText("0", { selector: "button" }));
@@ -202,7 +203,7 @@ describe("Calculator Component", () => {
         initialValue={0}
         onClose={mockOnClose}
         onApply={mockOnApply}
-      />
+      />,
     );
 
     // "5 + " then apply -> might error or return 5 depending on eval logic,
@@ -226,7 +227,7 @@ describe("Calculator Component", () => {
         initialValue={0}
         onClose={mockOnClose}
         onApply={mockOnApply}
-      />
+      />,
     );
 
     fireEvent.click(screen.getByText("1"));
@@ -247,7 +248,7 @@ describe("Calculator Component", () => {
         initialValue={0}
         onClose={mockOnClose}
         onApply={mockOnApply}
-      />
+      />,
     );
 
     fireEvent.click(screen.getByText("1", { selector: "button" }));
@@ -260,5 +261,27 @@ describe("Calculator Component", () => {
     fireEvent.click(screen.getByText("Apply", { selector: "button" }));
 
     expect(mockOnApply).not.toHaveBeenCalled();
+  });
+
+  test("resets display to 0 on Backspace if resetNext is true (e.g. after calculation)", () => {
+    render(
+      <Calculator
+        initialValue={0}
+        onClose={mockOnClose}
+        onApply={mockOnApply}
+      />,
+    );
+
+    // perform 5 + 5 = 10
+    fireEvent.click(screen.getByText("5", { selector: "button" }));
+    fireEvent.click(screen.getByText("+", { selector: "button" }));
+    fireEvent.click(screen.getByText("5", { selector: "button" }));
+    fireEvent.click(screen.getByText("=", { selector: "button" }));
+
+    expect(screen.getByText("10", { selector: "div" })).toBeInTheDocument();
+
+    // Now resetNext is true. Backspace should clear to 0.
+    fireEvent.click(screen.getByText("⌫", { selector: "button" }));
+    expect(screen.getByText("0", { selector: "div" })).toBeInTheDocument();
   });
 });
