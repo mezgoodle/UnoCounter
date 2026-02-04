@@ -6,6 +6,7 @@ import {
   deleteGame,
   endGame,
   undoLastRound,
+  addPlayer,
 } from "../app/lib/storage";
 
 const localStorageMock = (() => {
@@ -327,6 +328,61 @@ describe("Storage Logic", () => {
 
       // Should preserve the ghost ID since it couldn't rotate
       expect(afterUndo?.dealerId).toBe("ghost_player");
+    });
+  });
+
+  describe("addPlayer Logic", () => {
+    test("addPlayer adds a new player successfully", () => {
+      const game = createGame({ playerNames: ["A", "B"] });
+      const updatedGame = addPlayer(game.id, "C", 50);
+
+      expect(updatedGame).not.toBeNull();
+      expect(updatedGame?.players.length).toBe(3);
+      expect(updatedGame?.players[2].name).toBe("C");
+      expect(updatedGame?.players[2].totalScore).toBe(50);
+      expect(updatedGame?.players[2].id).toBeDefined();
+    });
+
+    test("addPlayer returns null if game not found", () => {
+      const result = addPlayer("non-existent", "C");
+      expect(result).toBeNull();
+    });
+
+    test("addPlayer returns null if name is empty", () => {
+      const game = createGame({ playerNames: ["A"] });
+      const result = addPlayer(game.id, "   ");
+      expect(result).toBeNull();
+    });
+
+    test("addPlayer sets new player as dealer if dealer was missing", () => {
+      const game = {
+        id: "g_no_dealer_2",
+        players: [],
+        currentTurn: 1,
+        // dealerId is empty string, which is falsy
+        dealerId: "",
+        rounds: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        isActive: true,
+      };
+      localStorage.setItem("unocounter_games", JSON.stringify([game]));
+
+      const updatedGame = addPlayer(game.id, "FirstPlayer");
+      expect(updatedGame).not.toBeNull();
+      expect(updatedGame?.players.length).toBe(1);
+      // Logic says: dealerId: game.dealerId || newPlayerId
+      // Since game.dealerId was "", it should use newPlayerId
+      expect(updatedGame?.dealerId).toBe(updatedGame?.players[0].id);
+    });
+
+    test("addPlayer preserves existing dealer", () => {
+      const game = createGame({ playerNames: ["A"] });
+      // A is dealer
+      const initialDealerId = game.dealerId;
+
+      const updatedGame = addPlayer(game.id, "B");
+      expect(updatedGame?.dealerId).toBe(initialDealerId);
     });
   });
 });

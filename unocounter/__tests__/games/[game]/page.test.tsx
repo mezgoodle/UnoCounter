@@ -6,6 +6,7 @@ import {
   addRound,
   endGame,
   undoLastRound,
+  addPlayer,
 } from "../../../app/lib/storage";
 import { useParams, useRouter } from "next/navigation";
 import { Game } from "../../../app/types/game";
@@ -23,6 +24,7 @@ const mockedEndGame = endGame as jest.MockedFunction<typeof endGame>;
 const mockedUndoLastRound = undoLastRound as jest.MockedFunction<
   typeof undoLastRound
 >;
+const mockedAddPlayer = addPlayer as jest.MockedFunction<typeof addPlayer>;
 const mockedUseParams = useParams as jest.Mock;
 const mockedUseRouter = useRouter as jest.Mock;
 
@@ -332,5 +334,92 @@ describe("GamePage", () => {
 
     // Verify calculator is closed
     expect(screen.queryByText("C")).not.toBeInTheDocument();
+    expect(screen.queryByText("C")).not.toBeInTheDocument();
+  });
+
+  test("adds a new player", async () => {
+    mockedGetGame.mockReturnValue(mockGame);
+    const updatedGame = {
+      ...mockGame,
+      players: [
+        ...mockGame.players,
+        { id: "p3", name: "Charlie", totalScore: 50 },
+      ],
+    };
+    mockedAddPlayer.mockReturnValue(updatedGame);
+
+    render(<GamePage />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/UNO Game #me-123/i)).toBeInTheDocument();
+    });
+
+    // Open Add Player form
+    fireEvent.click(screen.getByText("Add Player"));
+
+    // Use placeholder for name input
+    const nameInput = screen.getByPlaceholderText("Enter player name");
+    fireEvent.change(nameInput, { target: { value: "Charlie" } });
+
+    // Use spinbutton for score
+    const scoreInput = screen.getByRole("spinbutton");
+    fireEvent.change(scoreInput, { target: { value: "50" } });
+
+    // Submit - the button inside the form
+    // The header button text changes to "Cancel Add Player", so "Add Player" is unique now
+    fireEvent.click(screen.getByRole("button", { name: "Add Player" }));
+
+    await waitFor(() => {
+      expect(mockedAddPlayer).toHaveBeenCalledWith("game-123", "Charlie", 50);
+      expect(screen.getByText("Charlie")).toBeInTheDocument();
+      // Form should close
+      expect(screen.queryByText("Player Name")).not.toBeInTheDocument();
+    });
+  });
+
+  test("cancels add player form via header button", async () => {
+    mockedGetGame.mockReturnValue(mockGame);
+    render(<GamePage />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/UNO Game #me-123/i)).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByText("Add Player"));
+    expect(screen.getByText("Player Name")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText("Cancel Add Player"));
+    expect(screen.queryByText("Player Name")).not.toBeInTheDocument();
+  });
+
+  test("cancels add player form via form button", async () => {
+    mockedGetGame.mockReturnValue(mockGame);
+    render(<GamePage />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/UNO Game #me-123/i)).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByText("Add Player"));
+    expect(screen.getByText("Player Name")).toBeInTheDocument();
+
+    // Click the Cancel button inside the form
+    // There might be multiple "Cancel" buttons if calculator or others were involved, but here just one.
+    // Actually, "Add Round Scores" button is "Cancel" when score form is open.
+    // But score form is closed.
+    // The "Add Player" cancel button:
+    // <Button variant="secondary" onClick={() => setShowAddPlayerForm(false)}>Cancel</Button>
+
+    const cancelButtons = screen.getAllByText("Cancel");
+    // Should be just one?
+    // "Add Round Scores" (when closed) -> text is "Add Round Scores".
+    // So "Cancel" is unique inside the Add Player form?
+    // Wait, let's check header: "Cancel Add Player" matches /Cancel/.
+    // But exact text "Cancel" is usually button children.
+
+    // Let's use getByRole("button", { name: "Cancel" })
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+
+    expect(screen.queryByText("Player Name")).not.toBeInTheDocument();
   });
 });
