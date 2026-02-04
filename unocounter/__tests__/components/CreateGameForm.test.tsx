@@ -27,15 +27,15 @@ describe("CreateGameForm Component", () => {
     render(<CreateGameForm />);
 
     expect(
-      screen.getByRole("heading", { name: /Create New UNO Game/i })
+      screen.getByRole("heading", { name: /Create New UNO Game/i }),
     ).toBeInTheDocument();
     expect(screen.getByText("Player Names")).toBeInTheDocument();
     expect(screen.getAllByPlaceholderText(/Player/i)).toHaveLength(2);
     expect(
-      screen.getByRole("button", { name: /\+ Add Player/i })
+      screen.getByRole("button", { name: /\+ Add Player/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /Start Game/i })
+      screen.getByRole("button", { name: /Start Game/i }),
     ).toBeInTheDocument();
   });
 
@@ -100,7 +100,7 @@ describe("CreateGameForm Component", () => {
     fireEvent.submit(submitButton.closest("form")!);
 
     expect(window.alert).toHaveBeenCalledWith(
-      "Please fill in all player names"
+      "Please fill in all player names",
     );
     expect(mockedCreateGame).not.toHaveBeenCalled();
   });
@@ -124,10 +124,34 @@ describe("CreateGameForm Component", () => {
 
     await waitFor(() => {
       expect(window.alert).toHaveBeenCalledWith(
-        "Failed to create game. Please try again."
+        "Failed to create game. Please try again.",
       );
     });
 
     consoleSpy.mockRestore();
+  });
+
+  test("shows loading state when submitting", async () => {
+    const mockGame = { id: "123" };
+    mockedCreateGame.mockReturnValue(mockGame as Game);
+
+    render(<CreateGameForm />);
+
+    const inputs = screen.getAllByPlaceholderText(/Player/i);
+    fireEvent.change(inputs[0], { target: { value: "A" } });
+    fireEvent.change(inputs[1], { target: { value: "B" } });
+
+    const submitButton = screen.getByRole("button", { name: /Start Game/i });
+    fireEvent.submit(submitButton.closest("form")!);
+
+    // Should be loading immediately
+    expect(
+      screen.getByRole("button", { name: /Creating Game.../i }),
+    ).toBeInTheDocument();
+
+    // Wait for completion (navigation)
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith("/games/123");
+    });
   });
 });

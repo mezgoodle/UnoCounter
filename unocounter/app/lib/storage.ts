@@ -131,6 +131,53 @@ export const addRound = (gameId: string, data: AddRoundData): Game | null => {
   return updatedGame;
 };
 
+export const undoLastRound = (gameId: string): Game | null => {
+  const games = getGames();
+  const gameIndex = games.findIndex((game) => game.id === gameId);
+
+  if (gameIndex === -1) return null;
+
+  const game = games[gameIndex];
+  if (game.rounds.length === 0) return game;
+
+  const lastRound = game.rounds[game.rounds.length - 1];
+  const updatedPlayers = game.players.map((player) => {
+    const roundScore = lastRound.scores.find(
+      (score) => score.playerId === player.id,
+    );
+    return {
+      ...player,
+      totalScore: player.totalScore - (roundScore?.score || 0),
+    };
+  });
+
+  let previousDealerId = game.dealerId;
+  if (game.dealerId && game.players.length > 0) {
+    const currentDealerIndex = game.players.findIndex(
+      (player) => player.id === game.dealerId,
+    );
+    if (currentDealerIndex !== -1) {
+      const previousDealerIndex =
+        (currentDealerIndex - 1 + game.players.length) % game.players.length;
+      previousDealerId = game.players[previousDealerIndex].id;
+    }
+  }
+
+  const updatedGame: Game = {
+    ...game,
+    players: updatedPlayers,
+    currentTurn: Math.max(1, game.currentTurn - 1),
+    dealerId: previousDealerId,
+    rounds: game.rounds.slice(0, -1),
+    updatedAt: new Date(),
+  };
+
+  games[gameIndex] = updatedGame;
+  saveGames(games);
+
+  return updatedGame;
+};
+
 export const endGame = (gameId: string): Game | null => {
   const games = getGames();
   const gameIndex = games.findIndex((game) => game.id === gameId);

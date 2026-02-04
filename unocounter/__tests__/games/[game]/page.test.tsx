@@ -1,7 +1,12 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import GamePage from "../../../app/games/[game]/page";
-import { getGame, addRound, endGame } from "../../../app/lib/storage";
+import {
+  getGame,
+  addRound,
+  endGame,
+  undoLastRound,
+} from "../../../app/lib/storage";
 import { useParams, useRouter } from "next/navigation";
 import { Game } from "../../../app/types/game";
 
@@ -15,6 +20,9 @@ jest.mock("next/navigation", () => ({
 const mockedGetGame = getGame as jest.MockedFunction<typeof getGame>;
 const mockedAddRound = addRound as jest.MockedFunction<typeof addRound>;
 const mockedEndGame = endGame as jest.MockedFunction<typeof endGame>;
+const mockedUndoLastRound = undoLastRound as jest.MockedFunction<
+  typeof undoLastRound
+>;
 const mockedUseParams = useParams as jest.Mock;
 const mockedUseRouter = useRouter as jest.Mock;
 
@@ -28,6 +36,7 @@ const mockGame: Game = {
   updatedAt: new Date("2023-01-01T13:00:00"),
   currentTurn: 1,
   isActive: true,
+  dealerId: "p1",
   rounds: [],
 };
 
@@ -199,7 +208,7 @@ describe("GamePage", () => {
     fireEvent.click(screen.getByText("End Game"));
 
     expect(window.confirm).toHaveBeenCalledWith(
-      "Are you sure you want to end this game?"
+      "Are you sure you want to end this game?",
     );
     expect(mockedEndGame).toHaveBeenCalledWith("game-123");
 
@@ -235,5 +244,93 @@ describe("GamePage", () => {
     // Now check for Round History
     expect(screen.getByText("Round History")).toBeInTheDocument();
     expect(screen.getByText("Round 1")).toBeInTheDocument();
+  });
+
+  test("undoes the last round", async () => {
+    // Game with one round
+    const gameWithRounds = {
+      ...mockGame,
+      currentTurn: 2,
+      rounds: [
+        {
+          turnNumber: 1,
+          timestamp: new Date(),
+          scores: [
+            { playerId: "p1", score: 10 },
+            { playerId: "p2", score: 20 },
+          ],
+        },
+      ],
+      players: [
+        { id: "p1", name: "Alice", totalScore: 20 }, // 10 initial + 10 round
+        { id: "p2", name: "Bob", totalScore: 40 }, // 20 initial + 20 round
+      ],
+    };
+
+    // Result after undo (back to initial)
+    const gameAfterUndo = {
+      ...mockGame,
+      currentTurn: 1,
+      rounds: [],
+      players: [
+        { id: "p1", name: "Alice", totalScore: 10 },
+        { id: "p2", name: "Bob", totalScore: 20 },
+      ],
+    };
+
+    mockedGetGame.mockReturnValue(gameWithRounds);
+    mockedUndoLastRound.mockReturnValue(gameAfterUndo);
+
+    render(<GamePage />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Alice")).toBeInTheDocument();
+    });
+
+    // Undo button should be enabled
+    const undoButton = screen.getByText("Undo Last Round");
+    expect(undoButton).toBeEnabled();
+
+    // Click undo
+    fireEvent.click(undoButton);
+
+    // Confirm dialog
+    expect(window.confirm).toHaveBeenCalledWith("Undo the most recent round?");
+
+    // Check storage call
+    expect(mockedUndoLastRound).toHaveBeenCalledWith("game-123");
+
+    // Check UI update
+    await waitFor(() => {
+      // Scores should be back to 10 and 20
+      expect(screen.getByText("10")).toBeInTheDocument();
+      expect(screen.getByText("20")).toBeInTheDocument();
+    });
+  });
+
+  test("closes calculator when cancelled", async () => {
+    mockedGetGame.mockReturnValue(mockGame);
+    render(<GamePage />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/UNO Game #me-123/i)).toBeInTheDocument();
+    });
+
+    // Open form
+    fireEvent.click(screen.getByText("Add Round Scores"));
+
+    // Open calculator
+    const calculatorButtons = screen.getAllByText("🧮");
+    fireEvent.click(calculatorButtons[0]);
+
+    // Verify calculator is open
+    expect(screen.getByText("C")).toBeInTheDocument();
+
+    // Since calculator is in a portal/overlay (fixed inset-0), it might be later in DOM.
+    const cancels = screen.getAllByText("Cancel");
+    fireEvent.click(cancels[cancels.length - 1]); // Assume it's the last one rendered
+
+    // Verify calculator is closed
+    expect(screen.queryByText("C")).not.toBeInTheDocument();
   });
 });

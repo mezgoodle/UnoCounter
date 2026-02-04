@@ -6,7 +6,7 @@ import Link from "next/link";
 import Button from "../../components/Button";
 import Calculator from "../../components/Calculator";
 import { Game } from "../../types/game";
-import { getGame, addRound, endGame } from "../../lib/storage";
+import { getGame, addRound, endGame, undoLastRound } from "../../lib/storage";
 
 export default function GamePage() {
   const params = useParams();
@@ -94,6 +94,26 @@ export default function GamePage() {
     }
   };
 
+  const handleUndoLastRound = () => {
+    if (!game) return;
+    if (game.rounds.length === 0) {
+      alert("No rounds to undo yet.");
+      return;
+    }
+    if (!confirm("Undo the most recent round?")) return;
+
+    const updatedGame = undoLastRound(gameId);
+    if (updatedGame) {
+      setGame(updatedGame);
+      const resetScores: { [playerId: string]: number } = {};
+      updatedGame.players.forEach((player) => {
+        resetScores[player.id] = 0;
+      });
+      setRoundScores(resetScores);
+      setShowScoreForm(false);
+    }
+  };
+
   const DealerBadge = () => (
     <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
       Dealer
@@ -159,6 +179,13 @@ export default function GamePage() {
                   onClick={() => setShowScoreForm(!showScoreForm)}
                 >
                   {showScoreForm ? "Cancel" : "Add Round Scores"}
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={handleUndoLastRound}
+                  disabled={game.rounds.length === 0}
+                >
+                  Undo Last Round
                 </Button>
                 <Button variant="danger" onClick={handleEndGame}>
                   End Game

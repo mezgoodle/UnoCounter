@@ -5,6 +5,7 @@ import {
   saveGames,
   deleteGame,
   endGame,
+  undoLastRound,
 } from "../app/lib/storage";
 
 const localStorageMock = (() => {
@@ -216,6 +217,116 @@ describe("Storage Logic", () => {
       // console.log("DEBUG: Updated Result", JSON.stringify(updated, null, 2));
 
       expect(updated?.dealerId).toBe("missing_id");
+    });
+  });
+
+  describe("Undo Logic", () => {
+    test("undoLastRound reverts scores, dealer, and round count", () => {
+      // Setup
+      const game = createGame({
+        playerNames: ["A", "B", "C"],
+      });
+      // Force dealer to be A (index 0) for predictability if needed,
+      // but let's just rely on logic.
+      // Let's find initial dealer index
+      const initialDealerId = game.dealerId;
+      const dealers = game.players.map((p) => p.id);
+      const initialDealerIndex = dealers.indexOf(initialDealerId);
+
+      // Add a round
+      const scores = game.players.map((p) => ({ playerId: p.id, score: 10 }));
+      const afterRound1 = addRound(game.id, { scores });
+
+      if (!afterRound1) throw new Error("Failed to add round 1");
+
+      expect(afterRound1.rounds.length).toBe(1);
+      expect(afterRound1.currentTurn).toBe(2);
+      expect(afterRound1.players[0].totalScore).toBe(10); // Since we added 10
+
+      // Identify expected dealer after round 1
+      const expectedDealerIndexR1 = (initialDealerIndex + 1) % 3;
+      expect(afterRound1.dealerId).toBe(dealers[expectedDealerIndexR1]);
+
+      // Add another round
+      const scores2 = game.players.map((p) => ({ playerId: p.id, score: 5 }));
+      const afterRound2 = addRound(game.id, { scores: scores2 });
+
+      if (!afterRound2) throw new Error("Failed to add round 2");
+
+      expect(afterRound2.rounds.length).toBe(2);
+      expect(afterRound2.currentTurn).toBe(3);
+      expect(afterRound2.players[0].totalScore).toBe(15); // 10 + 5
+
+      // Undo the last round (Round 2)
+      const afterUndo = undoLastRound(game.id);
+
+      if (!afterUndo) throw new Error("Failed to undo round");
+
+      // Verify stats reverted to afterRound1 state
+      expect(afterUndo.rounds.length).toBe(1);
+      expect(afterUndo.currentTurn).toBe(2);
+      expect(afterUndo.players[0].totalScore).toBe(10);
+
+      // Dealer should be back to round 1's dealer
+      expect(afterUndo.dealerId).toBe(afterRound1.dealerId);
+
+      // Undo again (Undo Round 1)
+      const afterUndo2 = undoLastRound(game.id);
+      if (!afterUndo2) throw new Error("Failed to undo round 2");
+
+      expect(afterUndo2.rounds.length).toBe(0);
+      expect(afterUndo2.currentTurn).toBe(1);
+      expect(afterUndo2.players[0].totalScore).toBe(0);
+      expect(afterUndo2.dealerId).toBe(initialDealerId);
+    });
+
+    test("undoLastRound does nothing if no rounds exist", () => {
+      const game = createGame({ playerNames: ["A"] });
+      const afterUndo = undoLastRound(game.id);
+
+      expect(afterUndo).not.toBeNull();
+      expect(afterUndo?.rounds.length).toBe(0);
+      expect(afterUndo?.currentTurn).toBe(1);
+      expect(afterUndo?.id).toBe(game.id);
+    });
+
+    test("undoLastRound returns null if game not found", () => {
+      const result = undoLastRound("non-existent");
+      expect(result).toBeNull();
+    });
+
+    test("undoLastRound handles dealer rotation correctly wraps around", () => {
+      // Setup game with 3 players
+      const game = createGame({ playerNames: ["P1", "P2", "P3"] });
+      // dealers: [P1, P2, P3]
+      // initial dealer: let's assume P1 (index 0) for this test by forcing it if needed,
+      // but createGame is random. We can just trust undoLastRound matches the reverse math.
+
+      // Let's manually set dealer to index 0 (P1)
+      game.dealerId = game.players[0].id;
+      saveGames([game]);
+
+      // Add round -> dealer becomes P2 (index 1)
+      const afterRound = addRound(game.id, {
+        scores: game.players.map((p) => ({ playerId: p.id, score: 0 })),
+      });
+      expect(afterRound?.dealerId).toBe(game.players[1].id);
+
+      // Undo -> dealer should become P1 (index 0)
+      const afterUndo = undoLastRound(game.id);
+      expect(afterUndo?.dealerId).toBe(game.players[0].id);
+    });
+
+    test("undoLastRound preserves dealer if current dealer not found in players", () => {
+      const game = createGame({ playerNames: ["A", "B"] });
+      // Manually corrupt dealerId
+      game.dealerId = "ghost_player";
+      saveGames([game]);
+
+      const afterUndo = undoLastRound(game.id);
+
+      // Should preserve the ghost ID since it couldn't rotate
+      expect(afterUndo?.dealerId).toBe("ghost_player");
     });
   });
 });
