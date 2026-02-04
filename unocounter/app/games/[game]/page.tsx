@@ -104,8 +104,7 @@ export default function GamePage() {
       setNewPlayerName("");
       setNewPlayerStartingScore("0");
       const updatedScores = { ...roundScores };
-      const addedPlayer =
-        updatedGame.players[updatedGame.players.length - 1];
+      const addedPlayer = updatedGame.players[updatedGame.players.length - 1];
       updatedScores[addedPlayer.id] = 0;
       setRoundScores(updatedScores);
     }
@@ -181,8 +180,8 @@ export default function GamePage() {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-6xl mx-auto px-4 py-8">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <div>
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+          <div className="w-full md:w-auto">
             <Link
               href="/"
               className="text-blue-600 hover:text-blue-800 mb-2 inline-block"
@@ -197,12 +196,13 @@ export default function GamePage() {
             </p>
           </div>
 
-          <div className="flex gap-3">
+          <div className="grid grid-cols-2 gap-2 w-full md:w-auto md:flex md:gap-3">
             {game.isActive && (
               <>
                 <Button
                   variant="secondary"
                   onClick={() => setShowScoreForm(!showScoreForm)}
+                  className="w-full md:w-auto"
                 >
                   {showScoreForm ? "Cancel" : "Add Round Scores"}
                 </Button>
@@ -210,16 +210,22 @@ export default function GamePage() {
                   variant="secondary"
                   onClick={handleUndoLastRound}
                   disabled={game.rounds.length === 0}
+                  className="w-full md:w-auto"
                 >
                   Undo Last Round
                 </Button>
                 <Button
                   variant="secondary"
                   onClick={() => setShowAddPlayerForm(!showAddPlayerForm)}
+                  className="w-full md:w-auto"
                 >
                   {showAddPlayerForm ? "Cancel Add Player" : "Add Player"}
                 </Button>
-                <Button variant="danger" onClick={handleEndGame}>
+                <Button
+                  variant="danger"
+                  onClick={handleEndGame}
+                  className="w-full md:w-auto"
+                >
                   End Game
                 </Button>
               </>
@@ -337,7 +343,10 @@ export default function GamePage() {
               </div>
             </div>
             <div className="mt-6 flex gap-3">
-              <Button onClick={handleAddPlayer} disabled={!newPlayerName.trim()}>
+              <Button
+                onClick={handleAddPlayer}
+                disabled={!newPlayerName.trim()}
+              >
                 Add Player
               </Button>
               <Button
