@@ -6,7 +6,13 @@ import Link from "next/link";
 import Button from "../../components/Button";
 import Calculator from "../../components/Calculator";
 import { Game } from "../../types/game";
-import { getGame, addRound, endGame, undoLastRound } from "../../lib/storage";
+import {
+  getGame,
+  addRound,
+  endGame,
+  undoLastRound,
+  addPlayer,
+} from "../../lib/storage";
 
 export default function GamePage() {
   const params = useParams();
@@ -14,6 +20,9 @@ export default function GamePage() {
   const [game, setGame] = useState<Game | null>(null);
   const [loading, setLoading] = useState(true);
   const [showScoreForm, setShowScoreForm] = useState(false);
+  const [showAddPlayerForm, setShowAddPlayerForm] = useState(false);
+  const [newPlayerName, setNewPlayerName] = useState("");
+  const [newPlayerStartingScore, setNewPlayerStartingScore] = useState("0");
   const [roundScores, setRoundScores] = useState<{
     [playerId: string]: number;
   }>({});
@@ -82,6 +91,23 @@ export default function GamePage() {
         resetScores[player.id] = 0;
       });
       setRoundScores(resetScores);
+    }
+  };
+
+  const handleAddPlayer = () => {
+    if (!game) return;
+    const startingScore = parseInt(newPlayerStartingScore, 10) || 0;
+    const updatedGame = addPlayer(gameId, newPlayerName, startingScore);
+    if (updatedGame) {
+      setGame(updatedGame);
+      setShowAddPlayerForm(false);
+      setNewPlayerName("");
+      setNewPlayerStartingScore("0");
+      const updatedScores = { ...roundScores };
+      const addedPlayer =
+        updatedGame.players[updatedGame.players.length - 1];
+      updatedScores[addedPlayer.id] = 0;
+      setRoundScores(updatedScores);
     }
   };
 
@@ -187,6 +213,12 @@ export default function GamePage() {
                 >
                   Undo Last Round
                 </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => setShowAddPlayerForm(!showAddPlayerForm)}
+                >
+                  {showAddPlayerForm ? "Cancel Add Player" : "Add Player"}
+                </Button>
                 <Button variant="danger" onClick={handleEndGame}>
                   End Game
                 </Button>
@@ -267,6 +299,50 @@ export default function GamePage() {
               <Button
                 variant="secondary"
                 onClick={() => setShowScoreForm(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {showAddPlayerForm && game.isActive && (
+          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Add Player
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Player Name
+                </label>
+                <input
+                  type="text"
+                  value={newPlayerName}
+                  onChange={(e) => setNewPlayerName(e.target.value)}
+                  placeholder="Enter player name"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Starting Score
+                </label>
+                <input
+                  type="number"
+                  value={newPlayerStartingScore}
+                  onChange={(e) => setNewPlayerStartingScore(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+            <div className="mt-6 flex gap-3">
+              <Button onClick={handleAddPlayer} disabled={!newPlayerName.trim()}>
+                Add Player
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => setShowAddPlayerForm(false)}
               >
                 Cancel
               </Button>

@@ -80,6 +80,43 @@ export const getGame = (id: string): Game | null => {
   const games = getGames();
   return games.find((game) => game.id === id) || null;
 };
+
+export const addPlayer = (
+  gameId: string,
+  name: string,
+  startingScore = 0,
+): Game | null => {
+  const games = getGames();
+  const gameIndex = games.findIndex((game) => game.id === gameId);
+
+  if (gameIndex === -1) return null;
+
+  const trimmedName = name.trim();
+  if (!trimmedName) return null;
+
+  const game = games[gameIndex];
+  const newPlayerId = generateId();
+  const updatedPlayers = [
+    ...game.players,
+    {
+      id: newPlayerId,
+      name: trimmedName,
+      totalScore: startingScore,
+    },
+  ];
+
+  const updatedGame: Game = {
+    ...game,
+    players: updatedPlayers,
+    dealerId: game.dealerId || newPlayerId,
+    updatedAt: new Date(),
+  };
+
+  games[gameIndex] = updatedGame;
+  saveGames(games);
+
+  return updatedGame;
+};
 export const addRound = (gameId: string, data: AddRoundData): Game | null => {
   const games = getGames();
   const gameIndex = games.findIndex((game) => game.id === gameId);
