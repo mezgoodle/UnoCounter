@@ -6,6 +6,7 @@ import {
   addRound,
   endGame,
   undoLastRound,
+  addPlayer,
 } from "../../../app/lib/storage";
 import { useParams, useRouter } from "next/navigation";
 import { Game } from "../../../app/types/game";
@@ -23,6 +24,7 @@ const mockedEndGame = endGame as jest.MockedFunction<typeof endGame>;
 const mockedUndoLastRound = undoLastRound as jest.MockedFunction<
   typeof undoLastRound
 >;
+const mockedAddPlayer = addPlayer as jest.MockedFunction<typeof addPlayer>;
 const mockedUseParams = useParams as jest.Mock;
 const mockedUseRouter = useRouter as jest.Mock;
 
@@ -332,5 +334,192 @@ describe("GamePage", () => {
 
     // Verify calculator is closed
     expect(screen.queryByText("C")).not.toBeInTheDocument();
+    expect(screen.queryByText("C")).not.toBeInTheDocument();
+  });
+
+  test("adds a new player", async () => {
+    mockedGetGame.mockReturnValue(mockGame);
+    const updatedGame = {
+      ...mockGame,
+      players: [
+        ...mockGame.players,
+        { id: "p3", name: "Charlie", totalScore: 50 },
+      ],
+    };
+    mockedAddPlayer.mockReturnValue(updatedGame);
+
+    render(<GamePage />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/UNO Game #me-123/i)).toBeInTheDocument();
+    });
+
+    // Open Add Player form
+    fireEvent.click(screen.getByText("Add Player"));
+
+    // Use placeholder for name input
+    const nameInput = screen.getByPlaceholderText("Enter player name");
+    fireEvent.change(nameInput, { target: { value: "Charlie" } });
+
+    // Use spinbutton for score
+    const scoreInput = screen.getByRole("spinbutton");
+    fireEvent.change(scoreInput, { target: { value: "50" } });
+
+    // Submit - the button inside the form
+    // The header button text changes to "Cancel Add Player", so "Add Player" is unique now
+    fireEvent.click(screen.getByRole("button", { name: "Add Player" }));
+
+    await waitFor(() => {
+      expect(mockedAddPlayer).toHaveBeenCalledWith("game-123", "Charlie", 50);
+      expect(screen.getByText("Charlie")).toBeInTheDocument();
+      // Form should close
+      expect(screen.queryByText("Player Name")).not.toBeInTheDocument();
+    });
+  });
+
+  test("cancels add player form via header button", async () => {
+    mockedGetGame.mockReturnValue(mockGame);
+    render(<GamePage />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/UNO Game #me-123/i)).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByText("Add Player"));
+    expect(screen.getByText("Player Name")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText("Cancel Add Player"));
+    expect(screen.queryByText("Player Name")).not.toBeInTheDocument();
+  });
+
+  test("cancels add player form via form button", async () => {
+    mockedGetGame.mockReturnValue(mockGame);
+    render(<GamePage />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/UNO Game #me-123/i)).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByText("Add Player"));
+    expect(screen.getByText("Player Name")).toBeInTheDocument();
+
+    // Click the Cancel button inside the form
+    // There might be multiple "Cancel" buttons if calculator or others were involved, but here just one.
+    // Actually, "Add Round Scores" button is "Cancel" when score form is open.
+    // But score form is closed.
+    // The "Add Player" cancel button:
+    // <Button variant="secondary" onClick={() => setShowAddPlayerForm(false)}>Cancel</Button>
+
+    const cancelButtons = screen.getAllByText("Cancel");
+    // Should be just one?
+    // "Add Round Scores" (when closed) -> text is "Add Round Scores".
+    // So "Cancel" is unique inside the Add Player form?
+    // Wait, let's check header: "Cancel Add Player" matches /Cancel/.
+    // But exact text "Cancel" is usually button children.
+
+    // Let's use getByRole("button", { name: "Cancel" })
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+
+    expect(screen.queryByText("Player Name")).not.toBeInTheDocument();
+  });
+
+  test("verifies toggle button texts for score and player forms", async () => {
+    mockedGetGame.mockReturnValue(mockGame);
+    render(<GamePage />);
+
+    await waitFor(() => {
+      // Use getByRole button to ensure we find buttons
+      expect(
+        screen.getByRole("button", { name: "Add Round Scores" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Add Player" }),
+      ).toBeInTheDocument();
+    });
+
+    // Toggle Score Form
+    fireEvent.click(screen.getByRole("button", { name: "Add Round Scores" }));
+
+    // Now there should be a "Cancel" button.
+    // There is also a "Cancel" button in the form which appears.
+    const cancelButtons = screen.getAllByRole("button", { name: "Cancel" });
+    expect(cancelButtons.length).toBeGreaterThan(0);
+
+    // The "Add Round Scores" button should no longer exist
+    expect(
+      screen.queryByRole("button", { name: "Add Round Scores" }),
+    ).not.toBeInTheDocument();
+
+    // Toggle back using the first cancelled button found
+    fireEvent.click(cancelButtons[0]);
+
+    // Should be back to "Add Round Scores"
+    expect(
+      screen.getByRole("button", { name: "Add Round Scores" }),
+    ).toBeInTheDocument();
+
+    // Toggle Player Form
+    fireEvent.click(screen.getByRole("button", { name: "Add Player" }));
+
+    // Header button becomes "Cancel Add Player"
+    expect(
+      screen.getByRole("button", { name: "Cancel Add Player" }),
+    ).toBeInTheDocument();
+
+    // "Add Player" button in header should be gone.
+    // BUT "Add Player" button in form is present.
+    // We want to ensure the HEADER button is toggled.
+    // The Header button had "w-full md:w-auto" class if that helps, or just rely on the text change.
+    // If "Cancel Add Player" is present, we know the state changed.
+
+    // Toggle back
+    fireEvent.click(screen.getByRole("button", { name: "Cancel Add Player" }));
+
+    // "Cancel Add Player" is gone
+    expect(
+      screen.queryByRole("button", { name: "Cancel Add Player" }),
+    ).not.toBeInTheDocument();
+    // "Add Player" should be back (header button).
+    expect(
+      screen.getByRole("button", { name: "Add Player" }),
+    ).toBeInTheDocument();
+  });
+
+  test("undo button is disabled when no rounds exist", async () => {
+    const gameNoRounds = { ...mockGame, rounds: [] };
+    mockedGetGame.mockReturnValue(gameNoRounds);
+
+    render(<GamePage />);
+    await waitFor(() => {
+      expect(screen.getByText(/UNO Game #me-123/i)).toBeInTheDocument();
+    });
+
+    const undoButton = screen.getByRole("button", { name: "Undo Last Round" });
+    expect(undoButton).toBeDisabled();
+  });
+
+  test("renders finished game state (no action buttons)", async () => {
+    const finishedGame = { ...mockGame, isActive: false };
+    mockedGetGame.mockReturnValue(finishedGame);
+
+    render(<GamePage />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Finished")).toBeInTheDocument();
+    });
+
+    // Action buttons should not be present
+    expect(
+      screen.queryByRole("button", { name: "Add Round Scores" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Undo Last Round" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Add Player" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "End Game" }),
+    ).not.toBeInTheDocument();
   });
 });
