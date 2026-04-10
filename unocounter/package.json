@@ -12,7 +12,7 @@
     "test:cov": "jest --coverage"
   },
   "dependencies": {
-    "mathjs": "^15.1.0",
+    "mathjs": "^15.2.0",
     "next": "^16.1.1",
     "react": "^19.2.3",
     "react-dom": "^19.2.3"
