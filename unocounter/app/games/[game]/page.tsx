@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Button from "../../components/Button";
 import Calculator from "../../components/Calculator";
+import ScoreChart from "../../components/ScoreChart";
 import { Game } from "../../types/game";
 import {
   getGame,
@@ -398,6 +399,9 @@ export default function GamePage() {
             ))}
           </div>
         </div>
+
+        {/* Score Progression Chart */}
+        <ScoreChart game={game} />
 
         {/* Round History */}
         {game.rounds.length > 0 && (
