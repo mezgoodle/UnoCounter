@@ -385,4 +385,81 @@ describe("Storage Logic", () => {
       expect(updatedGame?.dealerId).toBe(initialDealerId);
     });
   });
+
+  describe("Max Score Limit Logic", () => {
+    test("createGame stores maxScore when specified", () => {
+      const game = createGame({
+        playerNames: ["Alice", "Bob"],
+        maxScore: 250,
+      });
+      expect(game.maxScore).toBe(250);
+    });
+
+    test("addRound keeps game active when player scores are below limit", () => {
+      const game = createGame({
+        playerNames: ["Alice", "Bob"],
+        maxScore: 100,
+      });
+
+      const updated = addRound(game.id, {
+        scores: [
+          { playerId: game.players[0].id, score: 40 },
+          { playerId: game.players[1].id, score: 50 },
+        ],
+      });
+
+      expect(updated?.isActive).toBe(true);
+      expect(updated?.players[0].totalScore).toBe(40);
+      expect(updated?.players[1].totalScore).toBe(50);
+    });
+
+    test("addRound terminates game when a player reaches or exceeds maxScore", () => {
+      const game = createGame({
+        playerNames: ["Alice", "Bob"],
+        maxScore: 100,
+      });
+
+      const updated = addRound(game.id, {
+        scores: [
+          { playerId: game.players[0].id, score: 100 },
+          { playerId: game.players[1].id, score: 20 },
+        ],
+      });
+
+      expect(updated?.isActive).toBe(false);
+      expect(updated?.players[0].totalScore).toBe(100);
+      expect(updated?.players[1].totalScore).toBe(20);
+    });
+
+    test("undoLastRound reactivates game if reverted scores are below maxScore", () => {
+      const game = createGame({
+        playerNames: ["Alice", "Bob"],
+        maxScore: 100,
+      });
+
+      // Round 1: below limit
+      let updated = addRound(game.id, {
+        scores: [
+          { playerId: game.players[0].id, score: 40 },
+          { playerId: game.players[1].id, score: 30 },
+        ],
+      });
+
+      // Round 2: exceeds limit
+      updated = addRound(game.id, {
+        scores: [
+          { playerId: game.players[0].id, score: 65 }, // total 105
+          { playerId: game.players[1].id, score: 20 }, // total 50
+        ],
+      });
+
+      expect(updated?.isActive).toBe(false);
+
+      // Undo Round 2
+      const reverted = undoLastRound(game.id);
+      expect(reverted?.isActive).toBe(true);
+      expect(reverted?.players[0].totalScore).toBe(40);
+      expect(reverted?.players[1].totalScore).toBe(30);
+    });
+  });
 });

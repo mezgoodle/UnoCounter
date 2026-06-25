@@ -19,10 +19,12 @@ export interface Game {
   createdAt: Date;
   updatedAt: Date;
   isActive: boolean;
+  maxScore?: number;
 }
 
 export interface CreateGameData {
   playerNames: string[];
+  maxScore?: number;
 }
 
 export interface AddRoundData {

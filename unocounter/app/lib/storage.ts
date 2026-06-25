@@ -61,6 +61,7 @@ export const createGame = (data: CreateGameData): Game => {
     createdAt: new Date(),
     updatedAt: new Date(),
     isActive: true,
+    maxScore: data.maxScore,
   };
 
   if (newGame.players.length > 0) {
@@ -153,12 +154,16 @@ export const addRound = (gameId: string, data: AddRoundData): Game | null => {
     }
   }
 
+  const hasReachedMaxScore = game.maxScore !== undefined &&
+    updatedPlayers.some((player) => player.totalScore >= (game.maxScore as number));
+
   const updatedGame: Game = {
     ...game,
     players: updatedPlayers,
     currentTurn: game.currentTurn + 1,
     dealerId: nextDealerId,
     rounds: [...game.rounds, newRound],
+    isActive: hasReachedMaxScore ? false : game.isActive,
     updatedAt: new Date(),
   };
 
@@ -200,12 +205,16 @@ export const undoLastRound = (gameId: string): Game | null => {
     }
   }
 
+  const hasReachedMaxScoreAfterUndo = game.maxScore !== undefined &&
+    updatedPlayers.some((player) => player.totalScore >= (game.maxScore as number));
+
   const updatedGame: Game = {
     ...game,
     players: updatedPlayers,
     currentTurn: Math.max(1, game.currentTurn - 1),
     dealerId: previousDealerId,
     rounds: game.rounds.slice(0, -1),
+    isActive: hasReachedMaxScoreAfterUndo ? false : true,
     updatedAt: new Date(),
   };
 

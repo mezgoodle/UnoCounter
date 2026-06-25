@@ -9,6 +9,8 @@ export default function CreateGameForm() {
   const router = useRouter();
   const [playerNames, setPlayerNames] = useState(["", ""]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasLimit, setHasLimit] = useState(false);
+  const [maxScore, setMaxScore] = useState(500);
 
   const addPlayer = () => {
     setPlayerNames([...playerNames, ""]);
@@ -40,6 +42,7 @@ export default function CreateGameForm() {
     try {
       const newGame = createGame({
         playerNames: playerNames.map((name) => name.trim()),
+        maxScore: hasLimit ? maxScore : undefined,
       });
 
       router.push(`/games/${newGame.id}`);
@@ -96,6 +99,39 @@ export default function CreateGameForm() {
         >
           + Add Player
         </Button>
+
+        {/* Point Limit Option */}
+        <div className="border-t border-gray-200 pt-4">
+          <div className="flex items-center">
+            <input
+              id="set-limit"
+              type="checkbox"
+              checked={hasLimit}
+              onChange={(e) => setHasLimit(e.target.checked)}
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            />
+            <label htmlFor="set-limit" className="ml-2 block text-sm text-gray-900 font-medium">
+              Set maximum score limit
+            </label>
+          </div>
+
+          {hasLimit && (
+            <div className="mt-3">
+              <label htmlFor="max-score" className="block text-sm font-medium text-gray-700 mb-1">
+                Max Score Limit (Game ends when reached)
+              </label>
+              <input
+                id="max-score"
+                type="number"
+                min="1"
+                value={maxScore}
+                onChange={(e) => setMaxScore(Math.max(1, parseInt(e.target.value) || 0))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
+              />
+            </div>
+          )}
+        </div>
 
         <Button type="submit" disabled={isSubmitting} className="w-full">
           {isSubmitting ? "Creating Game..." : "Start Game"}
