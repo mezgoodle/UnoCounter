@@ -42,11 +42,11 @@ test.describe("Uno Counter E2E Flow", () => {
     await page.getByRole("button", { name: "Add Round Scores" }).click();
 
     // Input score manually for Alice
-    const aliceInput = page.locator("div").filter({ hasText: /^Alice/ }).locator("input[type='number']");
+    const aliceInput = page.locator("label").filter({ hasText: /^Alice/ }).locator("..").locator("input[type='number']");
     await aliceInput.fill("20");
 
     // Input score using calculator for Bob (10 + 15 = 25)
-    await page.locator("div").filter({ hasText: /^Bob/ }).getByRole("button", { name: "🧮" }).click();
+    await page.locator("label").filter({ hasText: /^Bob/ }).locator("..").getByRole("button", { name: "🧮" }).click();
     await page.getByRole("button", { name: "1", exact: true }).click();
     await page.getByRole("button", { name: "0", exact: true }).click();
     await page.getByRole("button", { name: "+", exact: true }).click();
@@ -60,29 +60,29 @@ test.describe("Uno Counter E2E Flow", () => {
     await page.getByRole("button", { name: "Submit Round" }).click();
 
     // Verify cumulative scores: Alice 20, Bob 25, Charlie 0
-    const aliceTotal = page.locator("div").filter({ hasText: /^Alice/ }).locator("span.text-xl");
-    const bobTotal = page.locator("div").filter({ hasText: /^Bob/ }).locator("span.text-xl");
-    const charlieTotal = page.locator("div").filter({ hasText: /^Charlie/ }).locator("span.text-xl");
+    const aliceTotal = page.locator("div.bg-gray-50").filter({ hasText: "Alice" }).locator("span.text-xl");
+    const bobTotal = page.locator("div.bg-gray-50").filter({ hasText: "Bob" }).locator("span.text-xl");
+    const charlieTotal = page.locator("div.bg-gray-50").filter({ hasText: "Charlie" }).locator("span.text-xl");
 
     await expect(aliceTotal).toHaveText("20");
     await expect(bobTotal).toHaveText("25");
     await expect(charlieTotal).toHaveText("0");
 
     // Verify Charlie has the winner trophy 🏆 because they have the lowest score
-    await expect(page.locator("div").filter({ hasText: /^Charlie/ }).locator("text=🏆")).toBeVisible();
+    await expect(page.locator("div.bg-gray-50").filter({ hasText: "Charlie" }).locator("text=🏆")).toBeVisible();
 
     // 4. Mid-game modifications: Add Dave mid-game
     await page.getByRole("button", { name: "Add Player", exact: true }).click();
     await page.getByPlaceholder("Enter player name").fill("Dave");
 
     // Fill starting score with 10
-    const startingScoreInput = page.locator("div").filter({ hasText: "Starting Score" }).locator("input[type='number']");
+    const startingScoreInput = page.locator("label").filter({ hasText: "Starting Score" }).locator("..").locator("input[type='number']");
     await startingScoreInput.fill("10");
 
     await page.getByRole("button", { name: "Add Player", exact: true }).click();
 
     // Verify Dave is added with score 10
-    const daveTotal = page.locator("div").filter({ hasText: /^Dave/ }).locator("span.text-xl");
+    const daveTotal = page.locator("div.bg-gray-50").filter({ hasText: "Dave" }).locator("span.text-xl");
     await expect(daveTotal).toHaveText("10");
 
     // 5. Undo last round
@@ -144,7 +144,7 @@ test.describe("Uno Counter E2E Flow", () => {
 
     // Submit a round where Alice gets 60 points
     await page.getByRole("button", { name: "Add Round Scores" }).click();
-    const aliceInput = page.locator("div").filter({ hasText: /^Alice/ }).locator("input[type='number']");
+    const aliceInput = page.locator("label").filter({ hasText: /^Alice/ }).locator("..").locator("input[type='number']");
     await aliceInput.fill("60");
     await page.getByRole("button", { name: "Submit Round" }).click();
 
