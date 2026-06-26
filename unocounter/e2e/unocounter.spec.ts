@@ -2,6 +2,12 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Uno Counter E2E Flow", () => {
   test.beforeEach(async ({ page }) => {
+    page.on("console", msg => {
+      console.log(`BROWSER CONSOLE [${msg.type()}]: ${msg.text()}`);
+    });
+    page.on("pageerror", err => {
+      console.log(`BROWSER PAGE ERROR: ${err.message}`);
+    });
     // Clear localStorage before each test to ensure a clean state
     await page.goto("/");
     await page.evaluate(() => localStorage.clear());
