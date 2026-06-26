@@ -198,7 +198,7 @@ export default function GamePage() {
           </div>
 
           <div className="grid grid-cols-2 gap-2 w-full md:w-auto md:flex md:gap-3">
-            {game.isActive && (
+            {game.isActive ? (
               <>
                 <Button
                   variant="secondary"
@@ -230,6 +230,16 @@ export default function GamePage() {
                   End Game
                 </Button>
               </>
+            ) : (
+              game.rounds.length > 0 && (
+                <Button
+                  variant="secondary"
+                  onClick={handleUndoLastRound}
+                  className="w-full md:w-auto"
+                >
+                  Undo Last Round (Resume Game)
+                </Button>
+              )
             )}
           </div>
         </div>
@@ -249,7 +259,7 @@ export default function GamePage() {
             </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
             <div>
               <span className="text-gray-600">Current Turn:</span>
               <span className="ml-2 font-medium">{game.currentTurn}</span>
@@ -261,6 +271,12 @@ export default function GamePage() {
             <div>
               <span className="text-gray-600">Players:</span>
               <span className="ml-2 font-medium">{game.players.length}</span>
+            </div>
+            <div>
+              <span className="text-gray-600">Points Limit:</span>
+              <span className="ml-2 font-medium">
+                {game.maxScore !== undefined ? `${game.maxScore} pts` : "None"}
+              </span>
             </div>
           </div>
         </div>
