@@ -82,6 +82,38 @@ const mockGameWithMidGamePlayer: Game = {
   ],
 };
 
+const mockGameWithNewMidGamePlayerNotPlayed: Game = {
+  id: "game-123",
+  players: [
+    { id: "p1", name: "Alice", totalScore: 25 },
+    { id: "p2", name: "Bob", totalScore: 35 },
+    { id: "p3", name: "Charlie", totalScore: 50 }, // Added just now, hasn't played any rounds yet
+  ],
+  createdAt: new Date("2023-01-01T12:00:00"),
+  updatedAt: new Date("2023-01-01T13:00:00"),
+  currentTurn: 3,
+  isActive: true,
+  dealerId: "p1",
+  rounds: [
+    {
+      turnNumber: 1,
+      timestamp: new Date("2023-01-01T12:10:00"),
+      scores: [
+        { playerId: "p1", score: 10 },
+        { playerId: "p2", score: 20 },
+      ],
+    },
+    {
+      turnNumber: 2,
+      timestamp: new Date("2023-01-01T12:20:00"),
+      scores: [
+        { playerId: "p1", score: 15 },
+        { playerId: "p2", score: 15 },
+      ],
+    },
+  ],
+};
+
 describe("ScoreChart Component", () => {
   test("renders empty state placeholder when no rounds are played", () => {
     render(<ScoreChart game={mockGameNoRounds} />);
@@ -204,5 +236,45 @@ describe("ScoreChart Component", () => {
     // Move mouse out
     fireEvent.mouseLeave(svg);
     expect(screen.queryByTestId("chart-tooltip")).not.toBeInTheDocument();
+  });
+
+  test("handles player added mid-game who hasn't played any rounds yet", () => {
+    render(<ScoreChart game={mockGameWithNewMidGamePlayerNotPlayed} />);
+
+    // Legend should contain Charlie
+    expect(screen.getByTestId("chart-legend")).toHaveTextContent("Charlie");
+
+    const svg = screen.getByTestId("score-progression-svg");
+    svg.getBoundingClientRect = jest.fn(() => ({
+      width: 600,
+      height: 350,
+      top: 0,
+      left: 0,
+      bottom: 350,
+      right: 600,
+      x: 0,
+      y: 0,
+      toJSON: () => {},
+    }));
+
+    // Hover over Round 1 (center: X = 310)
+    fireEvent.mouseMove(svg, { clientX: 310, clientY: 175 });
+    
+    // Charlie should NOT be in the tooltip for Round 1
+    let tooltip = screen.getByTestId("chart-tooltip");
+    expect(tooltip).toHaveTextContent("Round 1");
+    expect(tooltip).toHaveTextContent("Alice");
+    expect(tooltip).toHaveTextContent("Bob");
+    expect(tooltip).not.toHaveTextContent("Charlie");
+
+    // Hover over Round 2 (end: X = 570)
+    // plotWidth = 520, paddingLeft = 50. getX(2) = 50 + 520 = 570
+    fireEvent.mouseMove(svg, { clientX: 570, clientY: 175 });
+
+    // Charlie SHOULD be in the tooltip for Round 2 (with score 50)
+    tooltip = screen.getByTestId("chart-tooltip");
+    expect(tooltip).toHaveTextContent("Round 2");
+    expect(tooltip).toHaveTextContent("Charlie");
+    expect(tooltip).toHaveTextContent("50");
   });
 });

@@ -75,7 +75,7 @@ export default function ScoreChart({ game }: ScoreChartProps) {
     const firstActiveRoundIndex = game.rounds.findIndex((round) =>
       round.scores.some((s) => s.playerId === player.id)
     );
-    const activeStart = firstActiveRoundIndex === -1 ? 0 : firstActiveRoundIndex;
+    const activeStart = firstActiveRoundIndex === -1 ? N : firstActiveRoundIndex;
 
     // 4. Fill history array: [0..N]
     const scores: (number | undefined)[] = new Array(N + 1).fill(undefined);
