@@ -15,7 +15,7 @@ test.describe("Uno Counter E2E Flow", () => {
     await expect(page.locator("text=No games yet")).toBeVisible();
 
     // 2. Game Creation
-    const startBtn = page.getByRole("button", { name: /Start New Game|Create Your First Game/ });
+    const startBtn = page.getByRole("button", { name: "Create Your First Game" });
     await startBtn.click();
 
     // Fill in player names
@@ -127,7 +127,7 @@ test.describe("Uno Counter E2E Flow", () => {
     await page.goto("/");
 
     // Create new game
-    await page.getByRole("button", { name: /Start New Game|Create Your First Game/ }).click();
+    await page.getByRole("button", { name: "Create Your First Game" }).click();
     await page.getByPlaceholder("Player 1").fill("Alice");
     await page.getByPlaceholder("Player 2").fill("Bob");
 

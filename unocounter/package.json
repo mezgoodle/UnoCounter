@@ -11,6 +11,7 @@
     "test:unit": "jest",
     "test:unit:watch": "jest --watch",
     "test:unit:cov": "jest --coverage",
+    "test:cov": "npm run test:unit:cov",
     "test:e2e": "playwright test"
   },
   "dependencies": {
