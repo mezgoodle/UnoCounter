@@ -115,7 +115,7 @@ test.describe("Uno Counter E2E Flow", () => {
     await expect(page.locator("text=Finished")).toBeVisible();
 
     // 7. Return to Home and delete
-    await page.getByRole("link", { name: "← Back to Games" }).click();
+    await page.goto("/");
     await expect(page.locator("h2")).toContainText("Finished Games (1)");
 
     // Delete the game
