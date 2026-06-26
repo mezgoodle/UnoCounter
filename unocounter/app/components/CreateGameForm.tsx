@@ -10,7 +10,7 @@ export default function CreateGameForm() {
   const [playerNames, setPlayerNames] = useState(["", ""]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasLimit, setHasLimit] = useState(false);
-  const [maxScore, setMaxScore] = useState(500);
+  const [maxScore, setMaxScore] = useState<number | "">(500);
 
   const addPlayer = () => {
     setPlayerNames([...playerNames, ""]);
@@ -40,9 +40,10 @@ export default function CreateGameForm() {
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     try {
+      const parsedMaxScore = hasLimit ? (typeof maxScore === "number" && !Number.isNaN(maxScore) ? Math.max(1, maxScore) : 500) : undefined;
       const newGame = createGame({
         playerNames: playerNames.map((name) => name.trim()),
-        maxScore: hasLimit ? maxScore : undefined,
+        maxScore: parsedMaxScore,
       });
 
       router.push(`/games/${newGame.id}`);
@@ -125,7 +126,17 @@ export default function CreateGameForm() {
                 type="number"
                 min="1"
                 value={maxScore}
-                onChange={(e) => setMaxScore(Math.max(1, parseInt(e.target.value) || 0))}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setMaxScore(val === "" ? "" : parseInt(val, 10));
+                }}
+                onBlur={() => {
+                  if (maxScore === "" || Number.isNaN(maxScore)) {
+                    setMaxScore(500);
+                  } else {
+                    setMaxScore(Math.max(1, maxScore));
+                  }
+                }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
               />

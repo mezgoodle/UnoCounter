@@ -48,6 +48,11 @@ export const saveGames = (games: Game[]): void => {
 export const createGame = (data: CreateGameData): Game => {
   const games = getGames();
 
+  const normalizedMaxScore =
+    typeof data.maxScore === "number" && Number.isFinite(data.maxScore) && data.maxScore > 0
+      ? data.maxScore
+      : undefined;
+
   const newGame: Game = {
     id: generateId(),
     players: data.playerNames.map((name) => ({
@@ -61,7 +66,7 @@ export const createGame = (data: CreateGameData): Game => {
     createdAt: new Date(),
     updatedAt: new Date(),
     isActive: true,
-    maxScore: data.maxScore,
+    maxScore: normalizedMaxScore,
   };
 
   if (newGame.players.length > 0) {
@@ -125,6 +130,7 @@ export const addRound = (gameId: string, data: AddRoundData): Game | null => {
   if (gameIndex === -1) return null;
 
   const game = games[gameIndex];
+  if (!game.isActive) return null;
   const newRound = {
     turnNumber: game.currentTurn,
     scores: data.scores,

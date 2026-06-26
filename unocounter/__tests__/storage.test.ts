@@ -461,5 +461,31 @@ describe("Storage Logic", () => {
       expect(reverted?.players[0].totalScore).toBe(40);
       expect(reverted?.players[1].totalScore).toBe(30);
     });
+
+    test("addRound returns null and does not add round on inactive games", () => {
+      const game = createGame({
+        playerNames: ["Alice", "Bob"],
+        maxScore: 100,
+      });
+
+      // End the game by exceeding the limit
+      const endedGame = addRound(game.id, {
+        scores: [
+          { playerId: game.players[0].id, score: 120 },
+          { playerId: game.players[1].id, score: 10 },
+        ],
+      });
+      expect(endedGame?.isActive).toBe(false);
+      expect(endedGame?.rounds.length).toBe(1);
+
+      // Try adding another round
+      const result = addRound(game.id, {
+        scores: [
+          { playerId: game.players[0].id, score: 10 },
+          { playerId: game.players[1].id, score: 10 },
+        ],
+      });
+      expect(result).toBeNull();
+    });
   });
 });
