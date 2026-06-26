@@ -286,7 +286,7 @@ describe("GamePage", () => {
     render(<GamePage />);
 
     await waitFor(() => {
-      expect(screen.getByText("Alice")).toBeInTheDocument();
+      expect(screen.getAllByText("Alice")[0]).toBeInTheDocument();
     });
 
     // Undo button should be enabled
