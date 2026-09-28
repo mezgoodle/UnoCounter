@@ -10,6 +10,10 @@ import {
 } from "../../../app/lib/storage";
 import { useParams, useRouter } from "next/navigation";
 import { Game } from "../../../app/types/game";
+import { ThemeProvider } from "../../../app/context/ThemeContext";
+
+const renderWithTheme = (ui: React.ReactElement) =>
+  render(<ThemeProvider>{ui}</ThemeProvider>);
 
 // Mock dependencies
 jest.mock("../../../app/lib/storage");
@@ -55,13 +59,13 @@ describe("GamePage", () => {
 
   test("renders loading state initially", () => {
     mockedGetGame.mockReturnValue(null);
-    render(<GamePage />);
+    renderWithTheme(<GamePage />);
     expect(screen.getByText("Loading...")).toBeInTheDocument();
   });
 
   test("redirects if game not found", async () => {
     mockedGetGame.mockReturnValue(null);
-    render(<GamePage />);
+    renderWithTheme(<GamePage />);
 
     await waitFor(() => {
       expect(window.alert).toHaveBeenCalledWith("Game not found");
@@ -71,7 +75,7 @@ describe("GamePage", () => {
 
   test("renders active game details", async () => {
     mockedGetGame.mockReturnValue(mockGame);
-    render(<GamePage />);
+    renderWithTheme(<GamePage />);
 
     await waitFor(() => {
       expect(screen.getByText(/UNO Game #me-123/i)).toBeInTheDocument();
@@ -105,7 +109,7 @@ describe("GamePage", () => {
     };
     mockedAddRound.mockReturnValue(updatedGame);
 
-    render(<GamePage />);
+    renderWithTheme(<GamePage />);
 
     await waitFor(() => {
       expect(screen.getByText(/UNO Game #me-123/i)).toBeInTheDocument();
@@ -139,7 +143,7 @@ describe("GamePage", () => {
 
   test("cancels score form", async () => {
     mockedGetGame.mockReturnValue(mockGame);
-    render(<GamePage />);
+    renderWithTheme(<GamePage />);
 
     await waitFor(() => {
       expect(screen.getByText(/UNO Game #me-123/i)).toBeInTheDocument();
@@ -158,7 +162,7 @@ describe("GamePage", () => {
 
   test("uses calculator to update score", async () => {
     mockedGetGame.mockReturnValue(mockGame);
-    render(<GamePage />);
+    renderWithTheme(<GamePage />);
 
     await waitFor(() => {
       expect(screen.getByText(/UNO Game #me-123/i)).toBeInTheDocument();
@@ -201,7 +205,7 @@ describe("GamePage", () => {
     const finishedGame = { ...mockGame, isActive: false };
     mockedEndGame.mockReturnValue(finishedGame);
 
-    render(<GamePage />);
+    renderWithTheme(<GamePage />);
 
     await waitFor(() => {
       expect(screen.getByText("End Game")).toBeInTheDocument();
@@ -236,7 +240,7 @@ describe("GamePage", () => {
     };
     mockedGetGame.mockReturnValue(gameWithHistory);
 
-    render(<GamePage />);
+    renderWithTheme(<GamePage />);
 
     // Wait for the game to load first
     await waitFor(() => {
@@ -283,7 +287,7 @@ describe("GamePage", () => {
     mockedGetGame.mockReturnValue(gameWithRounds);
     mockedUndoLastRound.mockReturnValue(gameAfterUndo);
 
-    render(<GamePage />);
+    renderWithTheme(<GamePage />);
 
     await waitFor(() => {
       expect(screen.getAllByText("Alice")[0]).toBeInTheDocument();
@@ -312,7 +316,7 @@ describe("GamePage", () => {
 
   test("closes calculator when cancelled", async () => {
     mockedGetGame.mockReturnValue(mockGame);
-    render(<GamePage />);
+    renderWithTheme(<GamePage />);
 
     await waitFor(() => {
       expect(screen.getByText(/UNO Game #me-123/i)).toBeInTheDocument();
@@ -348,7 +352,7 @@ describe("GamePage", () => {
     };
     mockedAddPlayer.mockReturnValue(updatedGame);
 
-    render(<GamePage />);
+    renderWithTheme(<GamePage />);
 
     await waitFor(() => {
       expect(screen.getByText(/UNO Game #me-123/i)).toBeInTheDocument();
@@ -379,7 +383,7 @@ describe("GamePage", () => {
 
   test("cancels add player form via header button", async () => {
     mockedGetGame.mockReturnValue(mockGame);
-    render(<GamePage />);
+    renderWithTheme(<GamePage />);
 
     await waitFor(() => {
       expect(screen.getByText(/UNO Game #me-123/i)).toBeInTheDocument();
@@ -394,7 +398,7 @@ describe("GamePage", () => {
 
   test("cancels add player form via form button", async () => {
     mockedGetGame.mockReturnValue(mockGame);
-    render(<GamePage />);
+    renderWithTheme(<GamePage />);
 
     await waitFor(() => {
       expect(screen.getByText(/UNO Game #me-123/i)).toBeInTheDocument();
@@ -425,7 +429,7 @@ describe("GamePage", () => {
 
   test("verifies toggle button texts for score and player forms", async () => {
     mockedGetGame.mockReturnValue(mockGame);
-    render(<GamePage />);
+    renderWithTheme(<GamePage />);
 
     await waitFor(() => {
       // Use getByRole button to ensure we find buttons
@@ -489,7 +493,7 @@ describe("GamePage", () => {
     const gameNoRounds = { ...mockGame, rounds: [] };
     mockedGetGame.mockReturnValue(gameNoRounds);
 
-    render(<GamePage />);
+    renderWithTheme(<GamePage />);
     await waitFor(() => {
       expect(screen.getByText(/UNO Game #me-123/i)).toBeInTheDocument();
     });
@@ -502,7 +506,7 @@ describe("GamePage", () => {
     const finishedGame = { ...mockGame, isActive: false };
     mockedGetGame.mockReturnValue(finishedGame);
 
-    render(<GamePage />);
+    renderWithTheme(<GamePage />);
 
     await waitFor(() => {
       expect(screen.getByText("Finished")).toBeInTheDocument();

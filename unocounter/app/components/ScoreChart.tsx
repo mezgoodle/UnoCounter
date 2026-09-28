@@ -2,6 +2,7 @@
 
 import React, { useState, useRef } from "react";
 import { Game, Player } from "../types/game";
+import { useTheme } from "../context/ThemeContext";
 
 interface ScoreChartProps {
   game: Game;
@@ -19,6 +20,9 @@ const PLAYER_COLORS = [
 ];
 
 export default function ScoreChart({ game }: ScoreChartProps) {
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
+
   const [hiddenPlayerIds, setHiddenPlayerIds] = useState<string[]>([]);
   const [hoveredPlayerId, setHoveredPlayerId] = useState<string | null>(null);
   const [hoveredRound, setHoveredRound] = useState<number | null>(null);
@@ -42,9 +46,9 @@ export default function ScoreChart({ game }: ScoreChartProps) {
   // We need at least one round to display a progression line chart (Round 0 to Round N)
   if (N === 0) {
     return (
-      <div className="bg-white rounded-lg shadow-md p-6 mb-8 text-center py-12">
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">Score Progression Chart</h2>
-        <p className="text-gray-500">Play at least one round to see the progression chart.</p>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8 text-center py-12">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Score Progression Chart</h2>
+        <p className="text-gray-500 dark:text-gray-400">Play at least one round to see the progression chart.</p>
       </div>
     );
   }
@@ -158,6 +162,12 @@ export default function ScoreChart({ game }: ScoreChartProps) {
     );
   };
 
+  // Theme-aware SVG colors
+  const gridLineColor = isDark ? "#374151" : "#F3F4F6";
+  const cursorLineColor = isDark ? "#6B7280" : "#9CA3AF";
+  const circleFillColor = isDark ? "#1F2937" : "#FFFFFF";
+  const textFillClass = isDark ? "fill-gray-500" : "fill-gray-400";
+
   // Mouse interactivity handlers
   const handleMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
     if (!containerRef.current || !svgRef.current) return;
@@ -248,9 +258,9 @@ export default function ScoreChart({ game }: ScoreChartProps) {
   return (
     <div
       ref={containerRef}
-      className="bg-white rounded-lg shadow-md p-6 mb-8 relative select-none"
+      className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8 relative select-none"
     >
-      <h2 className="text-xl font-semibold text-gray-900 mb-4">Score Progression Chart</h2>
+      <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Score Progression Chart</h2>
 
       {/* Legend */}
       <div className="flex flex-wrap gap-3 mb-6" data-testid="chart-legend">
@@ -267,8 +277,8 @@ export default function ScoreChart({ game }: ScoreChartProps) {
               onMouseLeave={() => setHoveredPlayerId(null)}
               className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium border transition-all cursor-pointer ${
                 isHidden
-                  ? "bg-gray-50 text-gray-400 border-gray-200 line-through"
-                  : "bg-white border-gray-300 text-gray-700"
+                  ? "bg-gray-50 dark:bg-gray-700 text-gray-400 dark:text-gray-500 border-gray-200 dark:border-gray-600 line-through"
+                  : "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300"
               } ${isDimmed ? "opacity-40" : "opacity-100"}`}
               style={{
                 borderColor: isHidden ? undefined : prog.color,
@@ -290,8 +300,8 @@ export default function ScoreChart({ game }: ScoreChartProps) {
       </div>
 
       {visibleProgressions.length === 0 ? (
-        <div className="flex flex-col items-center justify-center h-64 border border-dashed border-gray-200 rounded-lg">
-          <p className="text-gray-500 text-sm">Select at least one player in the legend to display the chart.</p>
+        <div className="flex flex-col items-center justify-center h-64 border border-dashed border-gray-200 dark:border-gray-700 rounded-lg">
+          <p className="text-gray-500 dark:text-gray-400 text-sm">Select at least one player in the legend to display the chart.</p>
         </div>
       ) : (
         <div className="relative">
@@ -314,7 +324,7 @@ export default function ScoreChart({ game }: ScoreChartProps) {
                     y1={getY(val)}
                     x2={viewBoxWidth - paddingRight}
                     y2={getY(val)}
-                    stroke="#F3F4F6"
+                    stroke={gridLineColor}
                     strokeWidth="1"
                     strokeDasharray="4 4"
                   />
@@ -322,7 +332,7 @@ export default function ScoreChart({ game }: ScoreChartProps) {
                     x={paddingLeft - 10}
                     y={getY(val) + 4}
                     textAnchor="end"
-                    className="text-[10px] fill-gray-400 font-medium font-sans"
+                    className={`text-[10px] ${textFillClass} font-medium font-sans`}
                   >
                     {val}
                   </text>
@@ -341,7 +351,7 @@ export default function ScoreChart({ game }: ScoreChartProps) {
                     x={getX(r)}
                     y={viewBoxHeight - paddingBottom + 18}
                     textAnchor="middle"
-                    className="text-[10px] fill-gray-400 font-medium font-sans"
+                    className={`text-[10px] ${textFillClass} font-medium font-sans`}
                   >
                     {label}
                   </text>
@@ -356,7 +366,7 @@ export default function ScoreChart({ game }: ScoreChartProps) {
                 y1={paddingTop}
                 x2={getX(hoveredRound)}
                 y2={viewBoxHeight - paddingBottom}
-                stroke="#9CA3AF"
+                stroke={cursorLineColor}
                 strokeWidth="1.5"
                 strokeDasharray="3 3"
                 className="pointer-events-none"
@@ -407,7 +417,7 @@ export default function ScoreChart({ game }: ScoreChartProps) {
                         cx={getX(r)}
                         cy={getY(score)}
                         r={isDotHovered ? 5 : 3.5}
-                        fill="#FFFFFF"
+                        fill={circleFillColor}
                         stroke={prog.color}
                         strokeWidth={isDotHovered ? 2.5 : 1.5}
                         className="transition-all duration-150 ease-out cursor-pointer"
@@ -424,7 +434,7 @@ export default function ScoreChart({ game }: ScoreChartProps) {
           {/* Hover Tooltip (HTML overlay) */}
           {tooltip.visible && hoveredRound !== null && (
             <div
-              className="absolute pointer-events-none bg-white/90 backdrop-blur-md border border-gray-200 shadow-xl rounded-xl p-3 z-30 flex flex-col gap-2 min-w-44 text-xs font-sans transition-all duration-75"
+              className="absolute pointer-events-none bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border border-gray-200 dark:border-gray-700 shadow-xl rounded-xl p-3 z-30 flex flex-col gap-2 min-w-44 text-xs font-sans transition-all duration-75"
               style={{
                 left: `${tooltip.x + 15}px`,
                 top: `${tooltip.y - 40}px`,
@@ -432,7 +442,7 @@ export default function ScoreChart({ game }: ScoreChartProps) {
               }}
               data-testid="chart-tooltip"
             >
-              <div className="font-semibold text-gray-900 border-b border-gray-100 pb-1 mb-1">
+              <div className="font-semibold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-700 pb-1 mb-1">
                 {tooltip.round === 0 ? "Start of Game" : `Round ${tooltip.round}`}
               </div>
               <div className="flex flex-col gap-1.5">
@@ -448,14 +458,14 @@ export default function ScoreChart({ game }: ScoreChartProps) {
                         className="w-2 h-2 rounded-full inline-block"
                         style={{ backgroundColor: item.color }}
                       />
-                      <span className="font-medium text-gray-700">
+                      <span className="font-medium text-gray-700 dark:text-gray-300">
                         {item.player.name}
                       </span>
                     </div>
-                    <div className="flex items-center gap-1 font-semibold text-gray-900">
+                    <div className="flex items-center gap-1 font-semibold text-gray-900 dark:text-white">
                       <span>{item.score}</span>
                       {tooltip.round > 0 && item.diff !== 0 && (
-                        <span className="text-[10px] font-normal text-gray-400">
+                        <span className="text-[10px] font-normal text-gray-400 dark:text-gray-500">
                           ({item.diff > 0 ? `+${item.diff}` : item.diff})
                         </span>
                       )}

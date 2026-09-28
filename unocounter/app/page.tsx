@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import CreateGameForm from "./components/CreateGameForm";
 import GameCard from "./components/GameCard";
 import Button from "./components/Button";
+import ThemeToggle from "./components/ThemeToggle";
 import { Game } from "./types/game";
 import { getGames, deleteGame } from "./lib/storage";
 
@@ -27,13 +28,17 @@ export default function Home() {
   const finishedGames = games.filter((game) => !game.isActive);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="max-w-6xl mx-auto px-4 py-8">
+        <div className="flex justify-end mb-4">
+          <ThemeToggle />
+        </div>
+
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
             🃏 UNO Score Tracker
           </h1>
-          <p className="text-xl text-gray-600">
+          <p className="text-xl text-gray-600 dark:text-gray-400">
             Keep track of your UNO game scores and see who&apos;s winning!
           </p>
         </div>
@@ -53,7 +58,7 @@ export default function Home() {
           ) : (
             <div className="mb-8">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
                   Create New Game
                 </h2>
                 <Button
@@ -71,7 +76,7 @@ export default function Home() {
         {/* Active Games */}
         {activeGames.length > 0 && (
           <div className="mb-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
               🟢 Active Games ({activeGames.length})
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -89,7 +94,7 @@ export default function Home() {
         {/* Finished Games */}
         {finishedGames.length > 0 && (
           <div className="mb-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
               🏁 Finished Games ({finishedGames.length})
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -108,10 +113,10 @@ export default function Home() {
         {games.length === 0 && !showCreateForm && (
           <div className="text-center py-16">
             <div className="text-6xl mb-4">🎯</div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
               No games yet
             </h3>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
               Start your first UNO game to begin tracking scores!
             </p>
             <Button onClick={() => setShowCreateForm(true)} size="lg">

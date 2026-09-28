@@ -3,6 +3,10 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import Home from "../app/page";
 import { getGames, deleteGame } from "../app/lib/storage";
 import { Game, Player } from "../app/types/game";
+import { ThemeProvider } from "../app/context/ThemeContext";
+
+const renderWithTheme = (ui: React.ReactElement) =>
+  render(<ThemeProvider>{ui}</ThemeProvider>);
 
 jest.mock("../app/lib/storage");
 
@@ -56,7 +60,7 @@ describe("Home Page", () => {
   test("renders empty state when no games are available", () => {
     mockedGetGames.mockReturnValue([]);
 
-    render(<Home />);
+    renderWithTheme(<Home />);
 
     expect(
       screen.getByRole("heading", { name: /UNO Score Tracker/i })
@@ -72,7 +76,7 @@ describe("Home Page", () => {
 
   test("opens create form when clicking 'Create Your First Game'", () => {
     mockedGetGames.mockReturnValue([]);
-    render(<Home />);
+    renderWithTheme(<Home />);
 
     const createButton = screen.getByRole("button", {
       name: /Create Your First Game/i,
@@ -87,7 +91,7 @@ describe("Home Page", () => {
   test("displays active and finished games from storage", () => {
     mockedGetGames.mockReturnValue([mockActiveGame, mockFinishedGame]);
 
-    render(<Home />);
+    renderWithTheme(<Home />);
 
     expect(screen.getByText(/Active Games \(1\)/i)).toBeInTheDocument();
     expect(screen.getByText(/Finished Games \(1\)/i)).toBeInTheDocument();
@@ -98,7 +102,7 @@ describe("Home Page", () => {
 
   test("shows the create game form when 'Start New Game' is clicked and hides it on 'Cancel'", () => {
     mockedGetGames.mockReturnValue([]);
-    render(<Home />);
+    renderWithTheme(<Home />);
 
     const startButton = screen.getByRole("button", {
       name: /Start New Game/i,
@@ -129,7 +133,7 @@ describe("Home Page", () => {
     mockedGetGames.mockReturnValueOnce([]);
     mockedDeleteGame.mockReturnValue(true);
 
-    render(<Home />);
+    renderWithTheme(<Home />);
 
     expect(screen.getByText("Alice")).toBeInTheDocument();
 
@@ -152,7 +156,7 @@ describe("Home Page", () => {
     (global.confirm as jest.Mock).mockReturnValue(false);
     mockedGetGames.mockReturnValue([mockActiveGame]);
 
-    render(<Home />);
+    renderWithTheme(<Home />);
 
     const deleteButton = screen.getByRole("button", { name: /delete/i });
     fireEvent.click(deleteButton);
