@@ -9,6 +9,8 @@ export default function CreateGameForm() {
   const router = useRouter();
   const [playerNames, setPlayerNames] = useState(["", ""]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasLimit, setHasLimit] = useState(false);
+  const [maxScore, setMaxScore] = useState<number | "">(500);
 
   const addPlayer = () => {
     setPlayerNames([...playerNames, ""]);
@@ -38,8 +40,10 @@ export default function CreateGameForm() {
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     try {
+      const parsedMaxScore = hasLimit ? (typeof maxScore === "number" && !Number.isNaN(maxScore) ? Math.max(1, maxScore) : 500) : undefined;
       const newGame = createGame({
         playerNames: playerNames.map((name) => name.trim()),
+        maxScore: parsedMaxScore,
       });
 
       router.push(`/games/${newGame.id}`);
@@ -52,14 +56,14 @@ export default function CreateGameForm() {
   };
 
   return (
-    <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
+    <div className="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
         Create New UNO Game
       </h2>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-3">
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
             Player Names
           </label>
 
@@ -70,7 +74,7 @@ export default function CreateGameForm() {
                 value={name}
                 onChange={(e) => updatePlayerName(index, e.target.value)}
                 placeholder={`Player ${index + 1}`}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                 required
               />
               {playerNames.length > 2 && (
@@ -96,6 +100,49 @@ export default function CreateGameForm() {
         >
           + Add Player
         </Button>
+
+        {/* Point Limit Option */}
+        <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+          <div className="flex items-center">
+            <input
+              id="set-limit"
+              type="checkbox"
+              checked={hasLimit}
+              onChange={(e) => setHasLimit(e.target.checked)}
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 rounded"
+            />
+            <label htmlFor="set-limit" className="ml-2 block text-sm text-gray-900 dark:text-white font-medium">
+              Set maximum score limit
+            </label>
+          </div>
+
+          {hasLimit && (
+            <div className="mt-3">
+              <label htmlFor="max-score" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Max Score Limit (Game ends when reached)
+              </label>
+              <input
+                id="max-score"
+                type="number"
+                min="1"
+                value={maxScore}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setMaxScore(val === "" ? "" : parseInt(val, 10));
+                }}
+                onBlur={() => {
+                  if (maxScore === "" || Number.isNaN(maxScore)) {
+                    setMaxScore(500);
+                  } else {
+                    setMaxScore(Math.max(1, maxScore));
+                  }
+                }}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                required
+              />
+            </div>
+          )}
+        </div>
 
         <Button type="submit" disabled={isSubmitting} className="w-full">
           {isSubmitting ? "Creating Game..." : "Start Game"}

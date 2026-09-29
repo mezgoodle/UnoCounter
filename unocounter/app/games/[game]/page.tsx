@@ -5,6 +5,8 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Button from "../../components/Button";
 import Calculator from "../../components/Calculator";
+import ScoreChart from "../../components/ScoreChart";
+import ThemeToggle from "../../components/ThemeToggle";
 import { Game } from "../../types/game";
 import {
   getGame,
@@ -140,16 +142,16 @@ export default function GamePage() {
   };
 
   const DealerBadge = () => (
-    <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+    <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
       Dealer
     </span>
   );
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="text-2xl">Loading...</div>
+          <div className="text-2xl text-gray-900 dark:text-white">Loading...</div>
         </div>
       </div>
     );
@@ -157,9 +159,9 @@ export default function GamePage() {
 
   if (!game) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="text-2xl text-red-600 mb-4">Game not found</div>
+          <div className="text-2xl text-red-600 dark:text-red-400 mb-4">Game not found</div>
           <Link href="/">
             <Button>Go Home</Button>
           </Link>
@@ -177,27 +179,32 @@ export default function GamePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="max-w-6xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div className="w-full md:w-auto">
-            <Link
-              href="/"
-              className="text-blue-600 hover:text-blue-800 mb-2 inline-block"
-            >
-              ← Back to Games
-            </Link>
-            <h1 className="text-3xl font-bold text-gray-900">
+            <div className="flex justify-between items-center">
+              <Link
+                href="/"
+                className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 mb-2 inline-block"
+              >
+                ← Back to Games
+              </Link>
+              <div className="md:hidden">
+                <ThemeToggle />
+              </div>
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
               UNO Game #{game.id.slice(-6)}
             </h1>
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-gray-400">
               Created {new Date(game.createdAt).toLocaleDateString()}
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-2 w-full md:w-auto md:flex md:gap-3">
-            {game.isActive && (
+          <div className="grid grid-cols-2 gap-2 w-full md:w-auto md:flex md:gap-3 md:items-center">
+            {game.isActive ? (
               <>
                 <Button
                   variant="secondary"
@@ -229,52 +236,71 @@ export default function GamePage() {
                   End Game
                 </Button>
               </>
+            ) : (
+              game.rounds.length > 0 && (
+                <Button
+                  variant="secondary"
+                  onClick={handleUndoLastRound}
+                  className="w-full md:w-auto"
+                >
+                  Undo Last Round (Resume Game)
+                </Button>
+              )
             )}
+            <div className="hidden md:block">
+              <ThemeToggle />
+            </div>
           </div>
         </div>
 
         {/* Game Status */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">Game Status</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Game Status</h2>
             <span
               className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
                 game.isActive
-                  ? "bg-green-100 text-green-800"
-                  : "bg-gray-100 text-gray-800"
+                  ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                  : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200"
               }`}
             >
               {game.isActive ? "Active" : "Finished"}
             </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
             <div>
-              <span className="text-gray-600">Current Turn:</span>
-              <span className="ml-2 font-medium">{game.currentTurn}</span>
+              <span className="text-gray-600 dark:text-gray-400">Current Turn:</span>
+              <span className="ml-2 font-medium text-gray-900 dark:text-white">{game.currentTurn}</span>
             </div>
             <div>
-              <span className="text-gray-600">Total Rounds:</span>
-              <span className="ml-2 font-medium">{game.rounds.length}</span>
+              <span className="text-gray-600 dark:text-gray-400">Total Rounds:</span>
+              <span className="ml-2 font-medium text-gray-900 dark:text-white">{game.rounds.length}</span>
             </div>
             <div>
-              <span className="text-gray-600">Players:</span>
-              <span className="ml-2 font-medium">{game.players.length}</span>
+              <span className="text-gray-600 dark:text-gray-400">Players:</span>
+              <span className="ml-2 font-medium text-gray-900 dark:text-white">{game.players.length}</span>
+            </div>
+            <div>
+              <span className="text-gray-600 dark:text-gray-400">Points Limit:</span>
+              <span className="ml-2 font-medium text-gray-900 dark:text-white">
+                {game.maxScore !== undefined ? `${game.maxScore} pts` : "None"}
+              </span>
             </div>
           </div>
         </div>
 
         {/* Score Form */}
         {showScoreForm && game.isActive && (
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
               Round {game.currentTurn} Scores
             </h3>
 
             <div className="space-y-4">
               {game.players.map((player) => (
                 <div key={player.id} className="flex items-center gap-4">
-                  <label className="flex-1 text-sm font-medium text-gray-700">
+                  <label className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300">
                     {player.name}
                     {game.dealerId === player.id && <DealerBadge />}
                   </label>
@@ -286,7 +312,7 @@ export default function GamePage() {
                         handleScoreChange(player.id, e.target.value)
                       }
                       placeholder="0"
-                      className="w-24 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-24 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     />
                     <Button
                       variant="secondary"
@@ -313,13 +339,13 @@ export default function GamePage() {
         )}
 
         {showAddPlayerForm && game.isActive && (
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
               Add Player
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Player Name
                 </label>
                 <input
@@ -327,18 +353,18 @@ export default function GamePage() {
                   value={newPlayerName}
                   onChange={(e) => setNewPlayerName(e.target.value)}
                   placeholder="Enter player name"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Starting Score
                 </label>
                 <input
                   type="number"
                   value={newPlayerStartingScore}
                   onChange={(e) => setNewPlayerStartingScore(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 />
               </div>
             </div>
@@ -368,8 +394,8 @@ export default function GamePage() {
         )}
 
         {/* Player Scores */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
             Player Scores
           </h2>
 
@@ -377,13 +403,13 @@ export default function GamePage() {
             {game.players.map((player: Game["players"][0], index: number) => (
               <div
                 key={player.id}
-                className="flex items-center justify-between p-3 rounded-lg bg-gray-50"
+                className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-700/50"
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-lg font-bold text-gray-400 w-8">
+                  <span className="text-lg font-bold text-gray-400 dark:text-gray-500 w-8">
                     {index + 1}
                   </span>
-                  <span className="font-medium text-gray-900">
+                  <span className="font-medium text-gray-900 dark:text-white">
                     {player.name}
                   </span>
                   {game.dealerId === player.id && <DealerBadge />}
@@ -391,7 +417,7 @@ export default function GamePage() {
                     <span className="text-yellow-600">🏆</span>
                   )}
                 </div>
-                <span className="text-xl font-bold text-gray-900">
+                <span className="text-xl font-bold text-gray-900 dark:text-white">
                   {player.totalScore}
                 </span>
               </div>
@@ -399,10 +425,13 @@ export default function GamePage() {
           </div>
         </div>
 
+        {/* Score Progression Chart */}
+        <ScoreChart game={game} />
+
         {/* Round History */}
         {game.rounds.length > 0 && (
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
               Round History
             </h2>
 
@@ -413,13 +442,13 @@ export default function GamePage() {
                 .map((round: Game["rounds"][0]) => (
                   <div
                     key={round.turnNumber}
-                    className="border border-gray-200 rounded-lg p-4"
+                    className="border border-gray-200 dark:border-gray-700 rounded-lg p-4"
                   >
                     <div className="flex justify-between items-center mb-3">
-                      <h3 className="font-medium text-gray-900">
+                      <h3 className="font-medium text-gray-900 dark:text-white">
                         Round {round.turnNumber}
                       </h3>
-                      <span className="text-sm text-gray-500">
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
                         {new Date(round.timestamp).toLocaleTimeString()}
                       </span>
                     </div>
@@ -432,10 +461,10 @@ export default function GamePage() {
                           );
                           return (
                             <div key={score.playerId} className="text-sm">
-                              <span className="text-gray-600">
+                              <span className="text-gray-600 dark:text-gray-400">
                                 {player?.name}:
                               </span>
-                              <span className="ml-1 font-medium">
+                              <span className="ml-1 font-medium text-gray-900 dark:text-white">
                                 {score.score}
                               </span>
                             </div>

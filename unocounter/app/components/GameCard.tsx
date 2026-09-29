@@ -28,22 +28,22 @@ export default function GameCard({ game, onDelete }: GameCardProps) {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
       <div className="flex justify-between items-start mb-4">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
             Game #{game.id.slice(-6)}
           </h3>
-          <p className="text-sm text-gray-500">{formatDate(game.createdAt)}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{formatDate(game.createdAt)}</p>
         </div>
 
         <div className="flex items-center gap-2">
           {game.isActive ? (
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
               Active
             </span>
           ) : (
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
               Finished
             </span>
           )}
@@ -51,7 +51,7 @@ export default function GameCard({ game, onDelete }: GameCardProps) {
       </div>
 
       <div className="mb-4">
-        <p className="text-sm text-gray-600 mb-2">
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
           <strong>{game.players.length}</strong> players •{" "}
           <strong>{getTotalRounds()}</strong> rounds
         </p>
@@ -59,8 +59,8 @@ export default function GameCard({ game, onDelete }: GameCardProps) {
         <div className="space-y-1">
           {game.players.map((player) => (
             <div key={player.id} className="flex justify-between text-sm">
-              <span className="text-gray-700">{player.name}</span>
-              <span className="font-medium text-gray-900">
+              <span className="text-gray-700 dark:text-gray-300">{player.name}</span>
+              <span className="font-medium text-gray-900 dark:text-white">
                 {player.totalScore}
               </span>
             </div>
@@ -69,8 +69,8 @@ export default function GameCard({ game, onDelete }: GameCardProps) {
       </div>
 
       {!game.isActive && getWinner() && (
-        <div className="mb-4 p-3 bg-yellow-50 rounded-md">
-          <p className="text-sm text-yellow-800">
+        <div className="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/30 rounded-md">
+          <p className="text-sm text-yellow-800 dark:text-yellow-200">
             🏆 Winner: <strong>{getWinner()?.name}</strong> (
             {getWinner()?.totalScore} points)
           </p>

@@ -48,6 +48,11 @@ export const saveGames = (games: Game[]): void => {
 export const createGame = (data: CreateGameData): Game => {
   const games = getGames();
 
+  const normalizedMaxScore =
+    typeof data.maxScore === "number" && Number.isFinite(data.maxScore) && data.maxScore > 0
+      ? data.maxScore
+      : undefined;
+
   const newGame: Game = {
     id: generateId(),
     players: data.playerNames.map((name) => ({
@@ -61,6 +66,7 @@ export const createGame = (data: CreateGameData): Game => {
     createdAt: new Date(),
     updatedAt: new Date(),
     isActive: true,
+    maxScore: normalizedMaxScore,
   };
 
   if (newGame.players.length > 0) {
@@ -124,6 +130,7 @@ export const addRound = (gameId: string, data: AddRoundData): Game | null => {
   if (gameIndex === -1) return null;
 
   const game = games[gameIndex];
+  if (!game.isActive) return null;
   const newRound = {
     turnNumber: game.currentTurn,
     scores: data.scores,
@@ -153,12 +160,16 @@ export const addRound = (gameId: string, data: AddRoundData): Game | null => {
     }
   }
 
+  const hasReachedMaxScore = game.maxScore !== undefined &&
+    updatedPlayers.some((player) => player.totalScore >= (game.maxScore as number));
+
   const updatedGame: Game = {
     ...game,
     players: updatedPlayers,
     currentTurn: game.currentTurn + 1,
     dealerId: nextDealerId,
     rounds: [...game.rounds, newRound],
+    isActive: hasReachedMaxScore ? false : game.isActive,
     updatedAt: new Date(),
   };
 
@@ -200,12 +211,16 @@ export const undoLastRound = (gameId: string): Game | null => {
     }
   }
 
+  const hasReachedMaxScoreAfterUndo = game.maxScore !== undefined &&
+    updatedPlayers.some((player) => player.totalScore >= (game.maxScore as number));
+
   const updatedGame: Game = {
     ...game,
     players: updatedPlayers,
     currentTurn: Math.max(1, game.currentTurn - 1),
     dealerId: previousDealerId,
     rounds: game.rounds.slice(0, -1),
+    isActive: hasReachedMaxScoreAfterUndo ? false : true,
     updatedAt: new Date(),
   };
 
