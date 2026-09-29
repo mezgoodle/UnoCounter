@@ -3,6 +3,10 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import ScoreChart from "../../app/components/ScoreChart";
 import { Game } from "../../app/types/game";
+import { ThemeProvider } from "../../app/context/ThemeContext";
+
+const renderWithTheme = (ui: React.ReactElement) =>
+  render(<ThemeProvider>{ui}</ThemeProvider>);
 
 const mockGameNoRounds: Game = {
   id: "game-123",
@@ -116,14 +120,14 @@ const mockGameWithNewMidGamePlayerNotPlayed: Game = {
 
 describe("ScoreChart Component", () => {
   test("renders empty state placeholder when no rounds are played", () => {
-    render(<ScoreChart game={mockGameNoRounds} />);
+    renderWithTheme(<ScoreChart game={mockGameNoRounds} />);
 
     expect(screen.getByText(/Play at least one round/i)).toBeInTheDocument();
     expect(screen.queryByTestId("score-progression-svg")).not.toBeInTheDocument();
   });
 
   test("renders legend and SVG canvas when rounds are played", () => {
-    render(<ScoreChart game={mockGameWithRounds} />);
+    renderWithTheme(<ScoreChart game={mockGameWithRounds} />);
 
     expect(screen.getByText(/Score Progression Chart/i)).toBeInTheDocument();
     expect(screen.getByTestId("score-progression-svg")).toBeInTheDocument();
@@ -135,7 +139,7 @@ describe("ScoreChart Component", () => {
   });
 
   test("renders player lines and data points", () => {
-    render(<ScoreChart game={mockGameWithRounds} />);
+    renderWithTheme(<ScoreChart game={mockGameWithRounds} />);
 
     // Check SVG paths
     const alicePath = screen.getByTestId("player-line-p1");
@@ -153,7 +157,7 @@ describe("ScoreChart Component", () => {
   });
 
   test("toggles player line visibility when legend is clicked", () => {
-    render(<ScoreChart game={mockGameWithRounds} />);
+    renderWithTheme(<ScoreChart game={mockGameWithRounds} />);
 
     const aliceLegendBtn = screen.getByRole("button", { name: /Alice/i });
     const bobLegendBtn = screen.getByRole("button", { name: /Bob/i });
@@ -180,7 +184,7 @@ describe("ScoreChart Component", () => {
   });
 
   test("handles player added mid-game correctly", () => {
-    render(<ScoreChart game={mockGameWithMidGamePlayer} />);
+    renderWithTheme(<ScoreChart game={mockGameWithMidGamePlayer} />);
 
     // All player lines should render
     expect(screen.getByTestId("player-line-p1")).toBeInTheDocument();
@@ -192,7 +196,7 @@ describe("ScoreChart Component", () => {
   });
 
   test("shows and hides tooltip on mouse interaction", () => {
-    render(<ScoreChart game={mockGameWithRounds} />);
+    renderWithTheme(<ScoreChart game={mockGameWithRounds} />);
 
     const svg = screen.getByTestId("score-progression-svg");
     
@@ -239,7 +243,7 @@ describe("ScoreChart Component", () => {
   });
 
   test("handles player added mid-game who hasn't played any rounds yet", () => {
-    render(<ScoreChart game={mockGameWithNewMidGamePlayerNotPlayed} />);
+    renderWithTheme(<ScoreChart game={mockGameWithNewMidGamePlayerNotPlayed} />);
 
     // Legend should contain Charlie
     expect(screen.getByTestId("chart-legend")).toHaveTextContent("Charlie");
